@@ -1,0 +1,70 @@
+{
+  "NeteaseAPI": "YOUR_COSTUM_API",
+  "DEBUG": false,
+  "Users": [
+    {
+      "Cookies": [
+        {
+          "key": "MUSIC_U",
+          "value": "USER_1_MUSIC_U"
+        }
+      ]
+    },
+    {
+      "Cookies": [
+        {
+          "key": "MUSIC_U",
+          "value": "USER_2_MUSIC_U"
+        }
+      ]
+    }
+  ],
+  "EventSendConfig": {
+    "LagConfig": {
+      "RandomLag": true,
+      "LagBetweenSendAndDelete": true,
+      "DefaultLag": 60,
+      "LagMin": 30,
+      "LagMax": 120
+    }
+  },
+  "CommentReplyConfig": {
+    "RepliedComment": [
+      {
+        "ID": 123456,
+        "CommentId": 123456
+      },
+      {
+        "ID": 123456,
+        "CommentId": 123456
+      }
+    ],
+    "LagConfig": {
+      "RandomLag": true,
+      "LagBetweenSendAndDelete": true,
+      "DefaultLag": 60,
+      "LagMin": 30,
+      "LagMax": 120
+    }
+  },
+  "SendMsgConfig": {
+    "UserID": [
+      [
+        123456
+      ],
+      [
+        123456
+      ]
+    ],
+    "LagConfig": {
+      "RandomLag": true,
+      "DefaultLag": 10,
+      "LagMin": 5,
+      "LagMax": 20
+    }
+  },
+  "Content": [
+    "YOUR_CUSTOM_TEXT_1",
+    "YOUR_CUSTOM_TEXT_2"
+  ]
+}
