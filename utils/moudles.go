@@ -64,7 +64,7 @@ func SendMsg(data RequestData, userID []int, msg string, config APIConfig) (resu
 	for i := 1; i < len(userID); i++ {
 		userIDs = fmt.Sprintf("%s,%d", userIDs, userID[i])
 	}
-	body, err := MakeRequest(fmt.Sprintf("%s/send/text?user_ids=%s&msg=%s", config.NeteaseAPI, userIDs, strings.Replace(msg, "%", "%%", -1)), data)
+	body, err := MakeRequest(fmt.Sprintf("%s/send/text?user_ids=%s&msg=%s", config.NeteaseAPI, userIDs, msg, data)
 	if err != nil {
 		return result, err
 	}
@@ -84,7 +84,7 @@ func Comment(data RequestData, commentConfig CommentConfig, config APIConfig) (r
 	if commentConfig.ThreadId != 0 {
 		threadIdArg = fmt.Sprintf("&threadId=%d", commentConfig.ThreadId)
 	}
-	body, err := MakeRequest(fmt.Sprintf("%s/comment?t=%d&type=%d&content=%s%s%s%s", config.NeteaseAPI, commentConfig.CommentType, commentConfig.ResType, strings.Replace(commentConfig.Content, "%", "%%", -1), commentIdArg, threadIdArg, idArg), data)
+	body, err := MakeRequest(fmt.Sprintf("%s/comment?t=%d&type=%d&content=%s%s%s%s", config.NeteaseAPI, commentConfig.CommentType, commentConfig.ResType, msg, commentIdArg, threadIdArg, idArg), data)
 	if err != nil {
 		return result, err
 	}
