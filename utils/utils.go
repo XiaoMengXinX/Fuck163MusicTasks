@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// Get 获取随机数
 func (r *RandomNum) Get() int {
 	if r.IsRandom {
 		rand.Seed(time.Now().UnixNano())
@@ -13,6 +14,7 @@ func (r *RandomNum) Get() int {
 	return r.DefaultNum
 }
 
+// Set 设置随机数
 func (r *RandomNum) Set(config LagConfig) {
 	r.IsRandom = config.RandomLag
 	r.DefaultNum = config.DefaultLag

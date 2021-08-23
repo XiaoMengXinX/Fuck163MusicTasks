@@ -57,10 +57,11 @@ type Config struct {
 
 // LagConfig 延迟设置
 type LagConfig struct {
-	RandomLag  bool `json:"RandomLag"`
-	DefaultLag int  `json:"DefaultLag"`
-	LagMin     int  `json:"LagMin"`
-	LagMax     int  `json:"LagMax"`
+	LagBetweenSendAndDelete bool `json:"LagBetweenSendAndDelete"`
+	RandomLag               bool `json:"RandomLag"`
+	DefaultLag              int  `json:"DefaultLag"`
+	LagMin                  int  `json:"LagMin"`
+	LagMax                  int  `json:"LagMax"`
 }
 
 // UserDetailData 用户详细数据
@@ -441,6 +442,7 @@ type CommentResult struct {
 	} `json:"comment"`
 }
 
+// EventConfig 发送动态的参数
 type EventConfig struct {
 	Msg        string `json:"msg"`
 	Type       string `json:"type"`
@@ -451,6 +453,7 @@ type EventConfig struct {
 	ER         string `json:"e_r"`
 }
 
+// SendEventResult 用于解析 eapi 发送动态的返回数据
 type SendEventResult struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
@@ -561,18 +564,21 @@ type SendEventResult struct {
 	ResUrl string `json:"resUrl"`
 }
 
+// DelEventConfig 用于解析 eapi 删除评论的返回数据
 type DelEventConfig struct {
 	ID     string `json:"id"`
 	Header string `json:"header"`
 	ER     string `json:"e_r"`
 }
 
+// PlainResult 用于解析一些操作类 api 的返回值
 type PlainResult struct {
 	Message string `json:"message"`
 	Msg     string `json:"msg"`
 	Code    int    `json:"code"`
 }
 
+// RandomNum 随机数设置
 type RandomNum struct {
 	IsRandom   bool
 	DefaultNum int

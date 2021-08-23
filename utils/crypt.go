@@ -17,6 +17,7 @@ func generateKey(key []byte) (genKey []byte) {
 	return genKey
 }
 
+// AesEncryptECB eapi 加密
 func AesEncryptECB(data string) (encrypted []byte) {
 	origData := []byte(data)
 	key := []byte(eapiKey)
@@ -37,6 +38,7 @@ func AesEncryptECB(data string) (encrypted []byte) {
 	return encrypted
 }
 
+// AesDecryptECB eapi 解密
 func AesDecryptECB(encrypted []byte) (decrypted []byte) {
 	key := []byte(eapiKey)
 	cipher, _ := aes.NewCipher(generateKey(key))

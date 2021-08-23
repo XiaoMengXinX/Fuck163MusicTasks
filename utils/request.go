@@ -6,11 +6,11 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	netUrl "net/url"
 	"strings"
 	"time"
 )
 
+// MakeRequest 创建 http 请求
 func MakeRequest(url string, data RequestData) ([]byte, error) {
 	client := &http.Client{}
 	var req *http.Request
@@ -18,7 +18,8 @@ func MakeRequest(url string, data RequestData) ([]byte, error) {
 	urlArr := strings.Split(url, "?")
 	if len(urlArr) == 2 {
 		urlArr[1] = fmt.Sprintf("%s&timestamp=%d", urlArr[1], time.Now().Unix()) // 给请求加入时间戳，避免缓存机制
-		url = urlArr[0] + "?" + netUrl.PathEscape(urlArr[1])
+		// url = urlArr[0] + "?" + netUrl.PathEscape(urlArr[1])
+		url = urlArr[0] + "?" + urlArr[1]
 	} else {
 		url = fmt.Sprintf("%s?timestamp=%d", url, time.Now().Unix())
 	}

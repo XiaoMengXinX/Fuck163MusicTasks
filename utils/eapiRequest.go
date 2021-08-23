@@ -14,6 +14,7 @@ import (
 	"time"
 )
 
+// EapiRequest eapi 请求
 func EapiRequest(eapiOption eapiOption, options RequestData) (result string, err error) {
 	data := SpliceStr(eapiOption.Path, eapiOption.Json)
 	answer, err := CreateNewRequest(Format2Params(data), eapiOption.Url, options)
@@ -28,6 +29,7 @@ func EapiRequest(eapiOption eapiOption, options RequestData) (result string, err
 	return "", err
 }
 
+// SpliceStr 拼接字符串
 func SpliceStr(path string, data string) (result string) {
 	text := fmt.Sprintf("nobody%suse%smd5forencrypt", path, data)
 	MD5 := md5.Sum([]byte(text))
@@ -36,11 +38,13 @@ func SpliceStr(path string, data string) (result string) {
 	return result
 }
 
+// Format2Params 拼接字符串
 func Format2Params(str string) (data string) {
 	data = fmt.Sprintf("params=%X", AesEncryptECB(str))
 	return data
 }
 
+// ChooseUserAgent 随机 UserAgent
 func ChooseUserAgent() string {
 	userAgentList := []string{
 		"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
@@ -64,6 +68,7 @@ func encodeURIComponent(str string) string {
 	return r
 }
 
+// CreateNewRequest 创建 eapi 请求
 func CreateNewRequest(data string, url string, options RequestData) (answer string, err error) {
 	client := &http.Client{}
 	reqBody := strings.NewReader(data)
