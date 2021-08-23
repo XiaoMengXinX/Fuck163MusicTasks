@@ -34,7 +34,7 @@
 
 **请不要直接复制粘贴 README 中的示例配置，如果一定要这样做的话，请确保在解析前移除所有注释。**
 
-```json
+```
 {
   "NeteaseAPI": "YOUR_COSTUM_API", // 参建上方的 "依赖", 须填入你想要使用的 网易云音乐API 地址
   "DEBUG": false, // 是否开启 DEBUG, 也可以在命令行参数加 -d 以开启 DEBUG模式
