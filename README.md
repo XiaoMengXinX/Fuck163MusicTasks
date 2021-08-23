@@ -23,6 +23,8 @@
 - 自动领取已完成任务的云豆
 - ~~自动兑换年费黑胶~~（并没有）
 
+**欢迎给本项目提 issue 及 pull request !**
+
 ## 🧩 依赖
 本项目依赖于 [Binaryify](https://github.com/Binaryify) 的 [网易云音乐API (Binaryify/NeteaseCloudMusicApi)](https://github.com/Binaryify/NeteaseCloudMusicApi)
 
