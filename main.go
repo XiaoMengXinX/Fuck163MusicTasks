@@ -86,7 +86,8 @@ Build ARCH: %s
 	func() { // 读取配置文件
 		configFile, err := os.Open(*configFileName)
 		if err != nil {
-			log.Fatal(err)
+			log.Errorln(err)
+			log.Fatal("读取配置文件失败")
 		}
 		defer func(configFile *os.File) {
 			err := configFile.Close()
@@ -96,11 +97,13 @@ Build ARCH: %s
 		}(configFile)
 		configFileData, err := ioutil.ReadAll(configFile)
 		if err != nil {
-			log.Fatal(err)
+			log.Errorln(err)
+			log.Fatal("读取配置文件失败")
 		}
 		err = json.Unmarshal(configFileData, &config)
 		if err != nil {
-			log.Fatal(err)
+			log.Errorln(err)
+			log.Fatal("读取配置文件失败，请检查你的 JSON 格式是否正确")
 		}
 	}()
 
@@ -368,10 +371,12 @@ func checkCloudBean(userData utils.LoginStatData, data utils.RequestData) ([]int
 	if err != nil {
 		return []int{}, err
 	}
+	var isObtainCloudBean bool
 	var autoTasks []int
 	for i := 0; i < len(tasksData.Data.List); i++ {
 		if tasksData.Data.List[i].Status == 20 {
 			log.Printf("[%s] 「%s」任务已完成，正在领取云豆", userData.Data.Profile.Nickname, tasksData.Data.List[i].Description)
+			isObtainCloudBean = true
 			result, err := utils.ObtainCloudBean(data, tasksData.Data.List[i].UserMissionId, tasksData.Data.List[i].Period, apiConfig)
 			if err != nil {
 				log.Errorln(err)
@@ -386,6 +391,13 @@ func checkCloudBean(userData utils.LoginStatData, data utils.RequestData) ([]int
 			log.Printf("[%s] 任务「%s」任务未完成，已添加到任务列表", userData.Data.Profile.Nickname, tasksData.Data.List[i].Description)
 			autoTasks = append(autoTasks, tasksData.Data.List[i].MissionId)
 		}
+	}
+	if isObtainCloudBean {
+		cloudBeanData, err = utils.GetCloudbeanData(data, apiConfig)
+		if err != nil {
+			return []int{}, err
+		}
+		log.Printf("[%s] 账号当前云豆数: %d", userData.Data.Profile.Nickname, cloudBeanData.Data.CloudBean)
 	}
 	if len(autoTasks) == 0 {
 		log.Printf("[%s] 后面的任务，明天再来探索吧！", userData.Data.Profile.Nickname)
