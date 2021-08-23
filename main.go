@@ -16,8 +16,10 @@ import (
 	"time"
 )
 
+// LogFormatter 自定义 log 格式
 type LogFormatter struct{}
 
+// Format 自定义 log 格式
 func (s *LogFormatter) Format(entry *log.Entry) ([]byte, error) {
 	timestamp := time.Now().Local().Format("2006/01/02 15:04:05")
 	var msg string
@@ -122,21 +124,21 @@ Build ARCH: %s
 			log.Errorln(err)
 		}
 
-		err = AutoTasks(userData, data)
+		err = autoTasks(userData, data)
 		if err != nil {
 			log.Errorln(err)
 		}
 	}
 }
 
-func AutoTasks(userData utils.LoginStatData, data utils.RequestData) error {
+func autoTasks(userData utils.LoginStatData, data utils.RequestData) error {
 	defer func() {
 		err := recover()
 		if err != nil {
 			log.Errorln(err)
 		}
 	}()
-	err := UserSignTask(userData, data)
+	err := userSignTask(userData, data)
 	if err != nil {
 		log.Errorln(err)
 	}
@@ -145,7 +147,7 @@ func AutoTasks(userData utils.LoginStatData, data utils.RequestData) error {
 		return err
 	}
 	if strings.Contains(userDetail.CurrentExpert.RoleName, "音乐人") {
-		autoTasks, err := CheckCloudBean(userData, data)
+		autoTasks, err := checkCloudBean(userData, data)
 		if err != nil {
 			return err
 		}
@@ -173,7 +175,7 @@ func AutoTasks(userData utils.LoginStatData, data utils.RequestData) error {
 						}
 					case 398000:
 						log.Printf("[%s] 执行发送动态任务中", userData.Data.Profile.Nickname)
-						err := SendEventTask(userData, data)
+						err := sendEventTask(userData, data)
 						if err != nil {
 							log.Println(err)
 						}
@@ -186,14 +188,14 @@ func AutoTasks(userData utils.LoginStatData, data utils.RequestData) error {
 							ID:          config.CommentReplyConfig.RepliedComment[processingUser].ID,
 							CommentId:   config.CommentReplyConfig.RepliedComment[processingUser].CommentId,
 						}
-						err := ReplyCommentTask(userData, commentConfig, data)
+						err := replyCommentTask(userData, commentConfig, data)
 						if err != nil {
 							log.Println(err)
 						}
 						log.Printf("[%s] 发送回复评论执行完成", userData.Data.Profile.Nickname)
 					case 395002:
 						log.Printf("[%s] 执行发送私信任务中", userData.Data.Profile.Nickname)
-						err := SendMsgTask(userData, config.SendMsgConfig.UserID[processingUser], data)
+						err := sendMsgTask(userData, config.SendMsgConfig.UserID[processingUser], data)
 						if err != nil {
 							log.Println(err)
 						}
@@ -202,7 +204,7 @@ func AutoTasks(userData utils.LoginStatData, data utils.RequestData) error {
 				}()
 			}
 			log.Printf("[%s] 所有任务执行完成，正在重新检查并领取云豆", userData.Data.Profile.Nickname)
-			autoTasks, err = CheckCloudBean(userData, data)
+			autoTasks, err = checkCloudBean(userData, data)
 			if err != nil {
 				return err
 			}
@@ -211,7 +213,7 @@ func AutoTasks(userData utils.LoginStatData, data utils.RequestData) error {
 	return nil
 }
 
-func UserSignTask(userData utils.LoginStatData, data utils.RequestData) error {
+func userSignTask(userData utils.LoginStatData, data utils.RequestData) error {
 	result, err := utils.UserSign(data, 0, apiConfig)
 	if err != nil {
 		return err
@@ -234,7 +236,7 @@ func UserSignTask(userData utils.LoginStatData, data utils.RequestData) error {
 	return nil
 }
 
-func SendEventTask(userData utils.LoginStatData, data utils.RequestData) error {
+func sendEventTask(userData utils.LoginStatData, data utils.RequestData) error {
 	failedTimes := 0
 	for i := 0; i < 3; {
 		if failedTimes >= 5 {
@@ -273,7 +275,7 @@ func SendEventTask(userData utils.LoginStatData, data utils.RequestData) error {
 	return nil
 }
 
-func ReplyCommentTask(userData utils.LoginStatData, commentConfig utils.CommentConfig, data utils.RequestData) error {
+func replyCommentTask(userData utils.LoginStatData, commentConfig utils.CommentConfig, data utils.RequestData) error {
 	replyToID := commentConfig.CommentId
 	failedTimes := 0
 	for i := 0; i < 5; {
@@ -319,7 +321,7 @@ func ReplyCommentTask(userData utils.LoginStatData, commentConfig utils.CommentC
 	return nil
 }
 
-func SendMsgTask(userData utils.LoginStatData, userIDs []int, data utils.RequestData) error {
+func sendMsgTask(userData utils.LoginStatData, userIDs []int, data utils.RequestData) error {
 	failedTimes := 0
 	for i := 0; i < 5; {
 		if failedTimes >= 5 {
@@ -355,7 +357,7 @@ func SendMsgTask(userData utils.LoginStatData, userIDs []int, data utils.Request
 	return nil
 }
 
-func CheckCloudBean(userData utils.LoginStatData, data utils.RequestData) ([]int, error) {
+func checkCloudBean(userData utils.LoginStatData, data utils.RequestData) ([]int, error) {
 	cloudBeanData, err := utils.GetCloudbeanData(data, apiConfig)
 	if err != nil {
 		return []int{}, err
