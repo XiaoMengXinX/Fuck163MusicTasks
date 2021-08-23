@@ -14,6 +14,7 @@ fi
 
 CUSTOM_GOOS=$1
 CUSTOM_GOARCH=$2
+OUTPUT_ARG=""
 
 if [[ "$CUSTOM_GOOS" != "" ]]; then
   export GOOS="$CUSTOM_GOOS"
@@ -21,6 +22,10 @@ fi
 
 if [[ "$CUSTOM_GOARCH" != "" ]]; then
   export GOARCH="$CUSTOM_GOARCH"
+fi
+
+if [[ "$3" == "-o" ]]; then
+  export OUTPUT_ARG="-o $4"
 fi
 
 LDFlags="\
@@ -32,4 +37,4 @@ LDFlags="\
     -X 'main.BUILD_OS=${BUILD_OS}' \
 "
 
-go build -trimpath -ldflags "${LDFlags}"
+go build ${OUTPUT_ARG} -trimpath -ldflags "${LDFlags}"
