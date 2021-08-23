@@ -30,11 +30,10 @@ fi
 
 LDFlags="\
     -s -w
-    -X 'main.VERSION=${VERSION}' \
-    -X 'main.COMMIT_SHA=${COMMIT_SHA}' \
-    -X 'main.BUILD_TIME=${BUILD_TIME}' \
-    -X 'main.VERSION=${VERSION}' \
-    -X 'main.BUILD_OS=${BUILD_OS}' \
+    -X 'main.version=${VERSION}' \
+    -X 'main.commitSHA=${COMMIT_SHA}' \
+    -X 'main.buildTime=${BUILD_TIME}' \
+    -X 'main.buildOS=${BUILD_OS}' \
 "
 
 go build ${OUTPUT_ARG} -trimpath -ldflags "${LDFlags}"
