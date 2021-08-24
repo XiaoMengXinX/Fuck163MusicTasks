@@ -53,6 +53,12 @@ type Config struct {
 		LagConfig LagConfig `json:"LagConfig"`
 	}
 	Content []string `json:"Content"`
+	Cron    struct {
+		Enabled    bool      `json:"Enabled"`
+		Expression string    `json:"Expression"`
+		EnableLag  bool      `json:"EnableLag"`
+		LagConfig  LagConfig `json:"LagConfig"`
+	} `json:"Cron"`
 }
 
 // LagConfig 延迟设置

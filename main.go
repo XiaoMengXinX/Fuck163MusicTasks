@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/XiaoMengXinX/Fuck163MusicTasks/utils"
+	"github.com/robfig/cron/v3"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
@@ -29,9 +30,9 @@ func (s *LogFormatter) Format(entry *log.Entry) ([]byte, error) {
 
 var config utils.Config
 var apiConfig utils.APIConfig
-var commentLeg utils.RandomNum
-var eventLeg utils.RandomNum
-var msgLeg utils.RandomNum
+var commentLag utils.RandomNum
+var eventLag utils.RandomNum
+var msgLag utils.RandomNum
 var processingUser int
 var configFileName = flag.String("c", "config.json", "Config filename") // 从 cli 参数读取配置文件名
 var printVersion = flag.Bool("v", false, "Print version")
@@ -113,10 +114,47 @@ Build ARCH: %s
 
 	apiConfig.NeteaseAPI = config.NeteaseAPI // 设置自定义网易云 api
 
-	commentLeg.Set(config.CommentReplyConfig.LagConfig) // 设置延迟
-	eventLeg.Set(config.EventSendConfig.LagConfig)
-	msgLeg.Set(config.SendMsgConfig.LagConfig)
+	commentLag.Set(config.CommentReplyConfig.LagConfig) // 设置延迟
+	eventLag.Set(config.EventSendConfig.LagConfig)
+	msgLag.Set(config.SendMsgConfig.LagConfig)
 
+	startTasks()
+
+	if config.Cron.Enabled {
+		location, err := time.LoadLocation("Asia/Shanghai")
+		if err != nil {
+			log.Fatal(err)
+		}
+		parser := cron.NewParser(
+			cron.Second | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor,
+		)
+		c := cron.New(cron.WithLocation(location), cron.WithParser(parser))
+		var entryID cron.EntryID
+		entryID, err = c.AddFunc(fmt.Sprintf("%s", config.Cron.Expression), func() {
+			entry := c.Entry(entryID)
+			log.Printf("[Cron] 任务已运行，下次运行时间 %s", entry.Next)
+			if config.Cron.EnableLag {
+				lag := utils.RandomNum{}
+				config.Cron.LagConfig.RandomLag = true
+				lag.Set(config.Cron.LagConfig)
+				randomLag := lag.Get()
+				log.Printf("[Cron] 随机延时 %d 秒", randomLag)
+				time.Sleep(time.Duration(randomLag) * time.Second)
+			}
+			startTasks()
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("[Cron] 任务创建成功，表达式: %s", config.Cron.Expression)
+		c.Start()
+		entry := c.Entry(entryID)
+		log.Printf("[Cron] 任务已启动，下次运行时间 %s", entry.Next)
+		select {}
+	}
+}
+
+func startTasks() {
 	for processingUser = 0; processingUser < len(config.Users); processingUser++ { // 开始执行自动任务
 		data := utils.RequestData{
 			Cookies: config.Users[processingUser].Cookies,
@@ -126,10 +164,13 @@ Build ARCH: %s
 		if err != nil {
 			log.Errorln(err)
 		}
-
-		err = autoTasks(userData, data)
-		if err != nil {
-			log.Errorln(err)
+		if userData.Data.Account.Id == 0 {
+			log.Errorf("获取 User[%d] 登录状态失败，请检查 MUSIC_U 是否失效", processingUser)
+		} else {
+			err = autoTasks(userData, data)
+			if err != nil {
+				log.Errorln(err)
+			}
 		}
 	}
 }
@@ -207,6 +248,7 @@ func autoTasks(userData utils.LoginStatData, data utils.RequestData) error {
 				}()
 			}
 			log.Printf("[%s] 所有任务执行完成，正在重新检查并领取云豆", userData.Data.Profile.Nickname)
+			time.Sleep(time.Duration(10) * time.Second)
 			autoTasks, err = checkCloudBean(userData, data)
 			if err != nil {
 				return err
@@ -254,7 +296,7 @@ func sendEventTask(userData utils.LoginStatData, data utils.RequestData) error {
 			log.Printf("[%s] 发送动态成功, 内容: \"%s\"", userData.Data.Profile.Nickname, msg)
 			i++
 			if config.EventSendConfig.LagConfig.LagBetweenSendAndDelete {
-				randomLag := eventLeg.Get()
+				randomLag := eventLag.Get()
 				log.Printf("[%s] 延时 %d 秒", userData.Data.Profile.Nickname, randomLag)
 				time.Sleep(time.Duration(randomLag) * time.Second)
 			}
@@ -271,7 +313,7 @@ func sendEventTask(userData utils.LoginStatData, data utils.RequestData) error {
 			log.Errorf("[%s] 发送动态失败, 内容: \"%s\", 代码: %d, 原因: \"%s\"", userData.Data.Profile.Nickname, msg, sendResult.Code, sendResult.Message)
 			failedTimes++
 		}
-		randomLag := eventLeg.Get()
+		randomLag := eventLag.Get()
 		log.Printf("[%s] 延时 %d 秒", userData.Data.Profile.Nickname, randomLag)
 		time.Sleep(time.Duration(randomLag) * time.Second)
 	}
@@ -297,7 +339,7 @@ func replyCommentTask(userData utils.LoginStatData, commentConfig utils.CommentC
 			log.Printf("[%s] 回复评论成功, 歌曲ID: %d, 评论ID: %d, 内容: \"%s\"", userData.Data.Profile.Nickname, commentConfig.ID, commentConfig.CommentId, msg)
 			i++
 			if config.CommentReplyConfig.LagConfig.LagBetweenSendAndDelete {
-				randomLag := commentLeg.Get()
+				randomLag := commentLag.Get()
 				log.Printf("[%s] 延时 %d 秒", userData.Data.Profile.Nickname, randomLag)
 				time.Sleep(time.Duration(randomLag) * time.Second)
 			}
@@ -317,7 +359,7 @@ func replyCommentTask(userData utils.LoginStatData, commentConfig utils.CommentC
 			log.Errorf("[%s] 回复评论失败, 歌曲ID: %d, 评论ID: %d, 内容: \"%s\", 代码: %d, 原因: \"%s\"", userData.Data.Profile.Nickname, commentConfig.ID, commentConfig.CommentId, msg, replyResult.Code, replyResult.Message)
 			failedTimes++
 		}
-		randomLag := commentLeg.Get()
+		randomLag := commentLag.Get()
 		log.Printf("[%s] 延时 %d 秒", userData.Data.Profile.Nickname, randomLag)
 		time.Sleep(time.Duration(randomLag) * time.Second)
 	}
@@ -353,7 +395,7 @@ func sendMsgTask(userData utils.LoginStatData, userIDs []int, data utils.Request
 			}
 			failedTimes++
 		}
-		randomLag := msgLeg.Get()
+		randomLag := msgLag.Get()
 		log.Printf("[%s] 延时 %d 秒", userData.Data.Profile.Nickname, randomLag)
 		time.Sleep(time.Duration(randomLag) * time.Second)
 	}

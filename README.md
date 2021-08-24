@@ -59,7 +59,7 @@
     }
   ],
   "EventSendConfig": { // 发送动态配置
-    "LagConfig": { // 延时配置
+    "LagConfig": { // 延时配置，若要完全关闭延时，请将 RandomLag 设为 false，并将 DefaultLag 设为 0
       "RandomLag": true, // 是否开启随机延时
       "LagBetweenSendAndDelete": true, // 是否开启发送动态与删除动态间的延时
       "DefaultLag": 60, // 默认延时，若 RandomLag 为 true, 则忽略此参数
@@ -106,14 +106,23 @@
   "Content": [ // 发送动态、回复评论、回复私信的文本内容, 须至少填入两条, 程序将会随机选择
     "YOUR_CUSTOM_TEXT_1",
     "YOUR_CUSTOM_TEXT_2"
-  ]
+  ],
+  "Cron": { // 内置 Cron 设置
+    "Enabled": false, // 是否启用内置 Cron
+    "Expression": "0 0 1,13 * * ?", // Cron 表达式
+    "EnableLag": false, // 是否启用 Cron 运行到执行自动任务间的随机延时
+    "LagConfig": { // 随机延时设置，设置项含义同上
+      "LagMin": 600,
+      "LagMax": 3600
+    }
+  }
 }
 ```
 
 ## 📖 快速开始
 **※ 请确保你已经阅读了上方的 "配置"，并按说明写好了你自己的配置文件**
 
-**请到 [Release 页](https://github.com/XiaoMengXinX/Fuck163MusicTasks/releases) 下载最新版的构建，并将你的配置文件重命名为 `config.json`，将其与下载的可执行文件放在同一目录**
+**请到 [Release 页](https://github.com/XiaoMengXinX/Fuck163MusicTasks/releases) 下载最新版的构建，并把你的配置文件重命名为 `config.json`，将其与下载的可执行文件放在同一目录**
 
 **在命令行运行 Fuck163MusicTasks**
 
@@ -148,7 +157,27 @@ Usage of ./Fuck163MusicTasks:
   -v    Print version
 ```
 
+## 🛠️ 部署自动运行
 
+#### 内置 Cron
+
+使用方法：
+
+1. 将 `config.json` 中的 `Cron.Enabled` 设为 `true`
+2. 到各种 [Cron表达式生成网站](https://www.bejson.com/othertools/cron/) 生成你想要的表达式（也可直接使用 `config_example.json` 中的 `0 0 1,13 * * ?`）
+3. 将表达式填入 Cron.Expression 设置项
+4. 保存配置文件，运行程序并挂到后台（linux 推荐使用 [screen](https://zh.wikipedia.org/wiki/GNU_Screen)）
+5. 坐和放宽
+
+**※为了防止网易云音乐风控，强烈建议启用随机延时 ( Cron.EnableLag )**
+
+#### Github Action
+
+虽然个人强烈不建议使用 Github Action 挂任何自动化任务，但我仍制作了一个简单的 Action 示例
+
+详见：https://github.com/XiaoMengXinX/Fuck163MusicTasks-Action
+
+使用方法：将你的 `config.json` 中的所有内容填入 Actions secrets 中的 `CONFIG` 环境变量，运行 Action 即可
 
 ## ⚙️ 构建
 
@@ -169,7 +198,3 @@ bash build.sh
 # 也可以加入参数以交叉编译，如
 bash build.sh linux arm64
 ```
-
-## 🛠️ 部署
-
-未来会支持 Github Action 部署，待更新...

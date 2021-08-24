@@ -66,5 +66,14 @@
   "Content": [
     "YOUR_CUSTOM_TEXT_1",
     "YOUR_CUSTOM_TEXT_2"
-  ]
+  ],
+  "Cron": {
+    "Enabled": false,
+    "Expression": "0 0 1,13 * * ?",
+    "EnableLag": false,
+    "LagConfig": {
+      "LagMin": 600,
+      "LagMax": 3600
+    }
+  }
 }
