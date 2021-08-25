@@ -48,7 +48,14 @@ var (
 )
 
 func init() {
-	output := io.MultiWriter(os.Stdout)
+	checkPathExists("./log")
+	timeStamp := time.Now().Local().Format("2006-01-02")
+	logFile := fmt.Sprintf("./log/%v.log", timeStamp)
+	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Error(err)
+	}
+	output := io.MultiWriter(file, os.Stdout)
 	log.SetOutput(output)
 	log.SetFormatter(&log.TextFormatter{
 		DisableColors:          false,
@@ -435,6 +442,7 @@ func checkCloudBean(userData utils.LoginStatData, data utils.RequestData) ([]int
 		}
 	}
 	if isObtainCloudBean {
+		time.Sleep(time.Duration(10) * time.Second)
 		cloudBeanData, err = utils.GetCloudbeanData(data, apiConfig)
 		if err != nil {
 			return []int{}, err
@@ -460,4 +468,20 @@ func autoTaskAvail(val int) bool {
 func randomText(textSlice []string) string {
 	rand.Seed(time.Now().UnixNano())
 	return textSlice[rand.Intn(len(textSlice)-1)]
+}
+
+func checkPathExists(path string) bool {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		err := os.Mkdir(path, os.ModePerm)
+		if err != nil {
+			log.Errorln(err)
+		}
+		return false
+	}
+	log.Errorln(err)
+	return false
 }
