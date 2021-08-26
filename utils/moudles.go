@@ -157,3 +157,23 @@ func ObtainCloudBean(data RequestData, userMissionId, period int, config APIConf
 	err = json.Unmarshal(body, &result)
 	return result, err
 }
+
+// GetQrKey 获取二维码登录的随机 UUID
+func GetQrKey(config APIConfig) (result QrKeyData, err error) {
+	body, err := MakeRequest(fmt.Sprintf("%s/login/qr/key", config.NeteaseAPI), RequestData{})
+	if err != nil {
+		return result, err
+	}
+	err = json.Unmarshal(body, &result)
+	return result, err
+}
+
+// CheckQrLogin 获取二维码登录的随机 UUID
+func CheckQrLogin(key string, config APIConfig) (result CheckQrLoginData, err error) {
+	body, err := MakeRequest(fmt.Sprintf("%s/login/qr/check?key=%s", config.NeteaseAPI, key), RequestData{})
+	if err != nil {
+		return result, err
+	}
+	err = json.Unmarshal(body, &result)
+	return result, err
+}

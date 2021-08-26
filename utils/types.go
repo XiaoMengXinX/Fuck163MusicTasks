@@ -584,6 +584,22 @@ type PlainResult struct {
 	Code    int    `json:"code"`
 }
 
+// QrKeyData 获取二维码登录 key 返回的的数据
+type QrKeyData struct {
+	Data struct {
+		Code   int    `json:"code"`
+		Unikey string `json:"unikey"`
+	} `json:"data"`
+	Code int `json:"code"`
+}
+
+// CheckQrLoginData 检测二维码登录状态返回的数据
+type CheckQrLoginData struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Cookie  string `json:"cookie"`
+}
+
 // RandomNum 随机数设置
 type RandomNum struct {
 	IsRandom   bool
