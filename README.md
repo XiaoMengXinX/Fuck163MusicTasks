@@ -30,6 +30,40 @@
 
 您可以自建服务，也可以使用 [Binaryify 在 vercel 上的 deployment](https://github.com/Binaryify/NeteaseCloudMusicApi/deployments/) ，个人推荐自建以保证数据安全性
 
+## 📖 快速开始
+**※ 请确保你已经阅读了下方的 "配置"，并按说明写好了你自己的配置文件**
+
+#### 关于如何获取 MUSIC_U :
+
+到 [此Release版本](https://github.com/XiaoMengXinX/Fuck163MusicTasks/releases/tag/v1.1.1) 下载小工具 **QuickLogin** 并在命令行运行，使用网易云客户端扫描授权登陆二维码，即可获取到你账号的 `MUSIC_U`
+
+（可使用参数 `-api=xxx` 自定义 api 地址，默认使用 [Binaryify 在 vercel 上的 deployment](https://github.com/Binaryify/NeteaseCloudMusicApi/deployments/)）
+
+#### 运行
+
+请到 [Release 页](https://github.com/XiaoMengXinX/Fuck163MusicTasks/releases) 下载最新版的构建，并把你的配置文件重命名为 `config.json`，将其与下载的可执行文件放在同一目录
+
+确保配置无误后，在命令行运行 Fuck163MusicTasks
+
+```
+$ ./Fuck163MusicTasks
+2021/08/24 00:13:00 [INFO] [用户名] 签到成功，获得 9 经验 (Android) (main.go:227)
+2021/08/24 00:13:00 [INFO] [用户名] 签到成功，获得 5 经验 (Android) (main.go:237)
+2021/08/24 00:13:00 [INFO] [用户名] 账号当前云豆数: 241 (main.go:368)
+2021/08/24 00:13:00 [INFO] [用户名] 获取音乐人任务中... (main.go:369)
+2021/08/24 00:13:01 [INFO] [用户名] 任务「登录音乐人中心」任务未完成，已添加到任务列表 (main.go:389)
+2021/08/24 00:13:01 [INFO] [用户名] 正在运行自动任务中 (main.go:158)
+2021/08/24 00:13:01 [INFO] [用户名] 执行音乐人签到任务中 (main.go:169)
+2021/08/24 00:13:01 [INFO] [用户名] 音乐人签到成功 (main.go:175)
+2021/08/24 00:13:01 [INFO] [用户名] 所有任务执行完成，正在重新检查并领取云豆 (main.go:209)
+2021/08/24 00:13:01 [INFO] [用户名] 账号当前云豆数: 241 (main.go:368)
+2021/08/24 00:13:01 [INFO] [用户名] 获取音乐人任务中... (main.go:369)
+2021/08/24 00:13:01 [INFO] [用户名] 「登录音乐人中心」任务已完成，正在领取云豆 (main.go:377)
+2021/08/24 00:13:01 [INFO] [用户名] 领取「登录音乐人中心」任务云豆成功 (main.go:383)
+2021/08/24 00:13:01 [INFO] [用户名] 账号当前云豆数: 242 (main.go:368)
+2021/08/24 00:13:01 [INFO] [用户名] 后面的任务，明天再来探索吧！ (main.go:394)
+```
+
 ## 📋 配置
 
 请下载并修改项目根目录下的 config_example.json
@@ -38,7 +72,7 @@
 
 ```
 {
-  "NeteaseAPI": "YOUR_COSTUM_API", // 参建上方的 "依赖", 须填入你想要使用的 网易云音乐API 地址
+  "NeteaseAPI": "https://netease-cloud-music-api-binaryify.vercel.app", // 参建上方的 "依赖", 建议填入自己部署的API
   "DEBUG": false, // 是否开启 DEBUG, 也可以在命令行参数加 -d 以开启 DEBUG模式
   "Users": [ // 用户配置
     {
@@ -117,32 +151,6 @@
     }
   }
 }
-```
-
-## 📖 快速开始
-**※ 请确保你已经阅读了上方的 "配置"，并按说明写好了你自己的配置文件**
-
-**请到 [Release 页](https://github.com/XiaoMengXinX/Fuck163MusicTasks/releases) 下载最新版的构建，并把你的配置文件重命名为 `config.json`，将其与下载的可执行文件放在同一目录**
-
-**在命令行运行 Fuck163MusicTasks**
-
-```
-$ ./Fuck163MusicTasks
-2021/08/24 00:13:00 [INFO] [用户名] 签到成功，获得 9 经验 (Android) (main.go:227)
-2021/08/24 00:13:00 [INFO] [用户名] 签到成功，获得 5 经验 (Android) (main.go:237)
-2021/08/24 00:13:00 [INFO] [用户名] 账号当前云豆数: 241 (main.go:368)
-2021/08/24 00:13:00 [INFO] [用户名] 获取音乐人任务中... (main.go:369)
-2021/08/24 00:13:01 [INFO] [用户名] 任务「登录音乐人中心」任务未完成，已添加到任务列表 (main.go:389)
-2021/08/24 00:13:01 [INFO] [用户名] 正在运行自动任务中 (main.go:158)
-2021/08/24 00:13:01 [INFO] [用户名] 执行音乐人签到任务中 (main.go:169)
-2021/08/24 00:13:01 [INFO] [用户名] 音乐人签到成功 (main.go:175)
-2021/08/24 00:13:01 [INFO] [用户名] 所有任务执行完成，正在重新检查并领取云豆 (main.go:209)
-2021/08/24 00:13:01 [INFO] [用户名] 账号当前云豆数: 241 (main.go:368)
-2021/08/24 00:13:01 [INFO] [用户名] 获取音乐人任务中... (main.go:369)
-2021/08/24 00:13:01 [INFO] [用户名] 「登录音乐人中心」任务已完成，正在领取云豆 (main.go:377)
-2021/08/24 00:13:01 [INFO] [用户名] 领取「登录音乐人中心」任务云豆成功 (main.go:383)
-2021/08/24 00:13:01 [INFO] [用户名] 账号当前云豆数: 242 (main.go:368)
-2021/08/24 00:13:01 [INFO] [用户名] 后面的任务，明天再来探索吧！ (main.go:394)
 ```
 
 #### **进阶操作**：

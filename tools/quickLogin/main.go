@@ -46,7 +46,7 @@ func init() {
 
 var apiConfig utils.APIConfig
 var (
-	apiURL  = flag.String("api", "https://netease-cloud-music-api-binaryify.vercel.app/", "NeteaseCloudMusicAPI url") // 从 cli 参数读取配置文件名
+	apiURL  = flag.String("api", "https://netease-cloud-music-api-binaryify.vercel.app", "NeteaseCloudMusicAPI url") // 从 cli 参数读取配置文件名
 	isDEBUG = flag.Bool("d", false, "DEBUG mode")
 )
 var (
