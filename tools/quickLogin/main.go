@@ -3,7 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/XiaoMengXinX/Fuck163MusicTasks/utils"
+	"github.com/XiaoMengXinX/Music163Api-Go/api"
+	"github.com/XiaoMengXinX/Music163Api-Go/utils"
 	log "github.com/sirupsen/logrus"
 	"github.com/skip2/go-qrcode"
 	"io"
@@ -44,9 +45,7 @@ func init() {
 	}
 }
 
-var apiConfig utils.APIConfig
 var (
-	apiURL  = flag.String("api", "https://netease-cloud-music-api-binaryify.vercel.app", "NeteaseCloudMusicAPI url") // 从 cli 参数读取配置文件名
 	isDEBUG = flag.Bool("d", false, "DEBUG mode")
 )
 var (
@@ -55,25 +54,27 @@ var (
 )
 
 func main() {
-	apiConfig.NeteaseAPI = *apiURL
-	qrKey, err := utils.GetQrKey(apiConfig)
+	qrKey, err := api.GetQrUnikey(utils.RequestData{})
 	if err != nil {
 		log.Fatal(err)
 	}
-	qr, err := qrcode.New(fmt.Sprintf("https://music.163.com/login?codekey=%s", qrKey.Data.Unikey), qrcode.High)
+	qr, err := qrcode.New(fmt.Sprintf("https://music.163.com/login?codekey=%s", qrKey.Unikey), qrcode.High)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(qr.ToSmallString(false))
 	fmt.Println("请使用网易云手机客户端扫描二维码")
 	for {
-		loginData, err := utils.CheckQrLogin(qrKey.Data.Unikey, apiConfig)
+		loginData, header, err := api.CheckQrLogin(utils.RequestData{}, qrKey.Unikey)
 		if err != nil {
 			log.Fatal(err)
 		}
+		if loginData.Code == 802 {
+			fmt.Println(loginData.Message)
+		}
 		if loginData.Code == 803 {
 			fmt.Println(loginData.Message)
-			MUSIC_U := rmSuf.ReplaceAllString(rmPre.ReplaceAllString(loginData.Cookie, ""), "")
+			MUSIC_U := rmSuf.ReplaceAllString(rmPre.ReplaceAllString(header, ""), "")
 			if MUSIC_U != "" {
 				fmt.Printf("[MUSIC_U] %s\n", MUSIC_U)
 			} else {

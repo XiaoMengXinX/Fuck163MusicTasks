@@ -37,8 +37,6 @@
 
 到 [此Release版本](https://github.com/XiaoMengXinX/Fuck163MusicTasks/releases/tag/v1.1.1) 下载小工具 **QuickLogin** 并在命令行运行，使用网易云客户端扫描授权登陆二维码，即可获取到你账号的 `MUSIC_U`
 
-（可使用参数 `-api=xxx` 自定义 api 地址，默认使用 [Binaryify 在 vercel 上的 deployment](https://github.com/Binaryify/NeteaseCloudMusicApi/deployments/)）
-
 #### 运行
 
 请到 [Release 页](https://github.com/XiaoMengXinX/Fuck163MusicTasks/releases) 下载最新版的构建，并把你的配置文件重命名为 `config.json`，将其与下载的可执行文件放在同一目录
