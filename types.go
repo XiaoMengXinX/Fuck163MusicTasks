@@ -12,17 +12,22 @@ type Config struct {
 	EventSendConfig struct {
 		LagConfig LagConfig `json:"LagConfig"`
 	} `json:"EventSendConfig"`
-	CommentReplyConfig struct {
+	CommentConfig struct {
 		RepliedComment []struct {
-			ID        int `json:"ID"`
-			CommentId int `json:"CommentId"`
+			MusicID   int `json:"MusicID"`
+			CommentID int `json:"CommentID"`
 		} `json:"RepliedComment"`
 		LagConfig LagConfig `json:"LagConfig"`
-	} `json:"CommentReplyConfig"`
+	} `json:"CommentConfig"`
 	SendMsgConfig struct {
 		UserID    [][]int   `json:"UserID"`
 		LagConfig LagConfig `json:"LagConfig"`
 	}
+	SendMlogConfig struct {
+		PicFolder string    `json:"PicFolder"`
+		MusicIDs  []int     `json:"MusicIDs"`
+		LagConfig LagConfig `json:"LagConfig"`
+	} `json:"SendMlogConfig"`
 	Content []string `json:"Content"`
 	Cron    struct {
 		Enabled    bool      `json:"Enabled"`

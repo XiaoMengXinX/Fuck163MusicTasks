@@ -28,15 +28,15 @@
       "LagMax": 120
     }
   },
-  "CommentReplyConfig": {
+  "CommentConfig": {
     "RepliedComment": [
       {
-        "ID": 123456,
-        "CommentId": 123456
+        "MusicID": 123456,
+        "CommentID": 123456
       },
       {
-        "ID": 123456,
-        "CommentId": 123456
+        "MusicID": 123456,
+        "CommentID": 123456
       }
     ],
     "LagConfig": {
@@ -62,6 +62,14 @@
       "LagMin": 5,
       "LagMax": 20
     }
+  },
+  "SendMlogConfig": {
+    "PicFolder": "./pic",
+    "MusicIDs": [
+      1322404518,
+      1395512014,
+      1295601353
+    ]
   },
   "Content": [
     "YOUR_CUSTOM_TEXT_1",

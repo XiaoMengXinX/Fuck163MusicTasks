@@ -34,6 +34,7 @@ var config Config
 var commentLag RandomNum
 var eventLag RandomNum
 var msgLag RandomNum
+var mlogLag RandomNum
 var processingUser int
 var configFileName = flag.String("c", "config.json", "Config filename") // 从 cli 参数读取配置文件名
 var printVersion = flag.Bool("v", false, "Print version")
@@ -112,7 +113,7 @@ Build ARCH: %s
 		err = json.Unmarshal(configFileData, &config)
 		if err != nil {
 			log.Errorln(err)
-			log.Fatal("读取配置文件失败，请检查你的 JSON 格式是否正确")
+			log.Fatal("读取配置文件失败, 请检查你的 JSON 格式是否正确")
 		}
 	}()
 
@@ -120,9 +121,10 @@ Build ARCH: %s
 		log.SetLevel(log.DebugLevel)
 	}
 
-	commentLag.Set(config.CommentReplyConfig.LagConfig) // 设置延迟
+	commentLag.Set(config.CommentConfig.LagConfig) // 设置延迟
 	eventLag.Set(config.EventSendConfig.LagConfig)
 	msgLag.Set(config.SendMsgConfig.LagConfig)
+	mlogLag.Set(config.SendMlogConfig.LagConfig)
 
 	startTasks()
 
@@ -138,24 +140,26 @@ Build ARCH: %s
 		var entryID cron.EntryID
 		entryID, err = c.AddFunc(fmt.Sprintf("%s", config.Cron.Expression), func() {
 			entry := c.Entry(entryID)
-			log.Printf("[Cron] 任务已运行，下次运行时间 %s", entry.Next)
+			log.Printf("[Cron] 任务已运行, 下次运行时间 %s", entry.Next)
 			if config.Cron.EnableLag {
 				lag := RandomNum{}
 				config.Cron.LagConfig.RandomLag = true
 				lag.Set(config.Cron.LagConfig)
 				randomLag := lag.Get()
-				log.Printf("[Cron] 随机延时 %d 秒", randomLag)
-				time.Sleep(time.Duration(randomLag) * time.Second)
+				if randomLag != 0 {
+					log.Printf("[Cron] 随机延时 %d 秒", randomLag)
+					time.Sleep(time.Duration(randomLag) * time.Second)
+				}
 			}
 			startTasks()
 		})
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Printf("[Cron] 任务创建成功，表达式: %s", config.Cron.Expression)
+		log.Printf("[Cron] 任务创建成功, 表达式: %s", config.Cron.Expression)
 		c.Start()
 		entry := c.Entry(entryID)
-		log.Printf("[Cron] 任务已启动，下次运行时间 %s", entry.Next)
+		log.Printf("[Cron] 任务已启动, 下次运行时间 %s", entry.Next)
 		select {}
 	}
 }
@@ -165,13 +169,12 @@ func startTasks() {
 		data := utils.RequestData{
 			Cookies: config.Users[processingUser].Cookies,
 		}
-
 		userData, err := api.GetLoginStatus(data)
 		if err != nil {
 			log.Errorln(err)
 		}
 		if userData.Account.Id == 0 {
-			log.Errorf("获取 User[%d] 登录状态失败，请检查 MUSIC_U 是否失效", processingUser)
+			log.Errorf("获取 User[%d] 登录状态失败, 请检查 MUSIC_U 是否失效", processingUser)
 		} else {
 			err = autoTasks(userData, data)
 			if err != nil {
@@ -234,8 +237,8 @@ func autoTasks(userData types.LoginStatusData, data utils.RequestData) error {
 						log.Printf("[%s] 执行回复评论任务中", userData.Profile.Nickname)
 						commentConfig := api.CommentConfig{
 							ResType:      0,
-							ResID:        config.CommentReplyConfig.RepliedComment[processingUser].ID,
-							CommentID:    config.CommentReplyConfig.RepliedComment[processingUser].CommentId,
+							ResID:        config.CommentConfig.RepliedComment[processingUser].MusicID,
+							CommentID:    config.CommentConfig.RepliedComment[processingUser].CommentID,
 							ForwardEvent: false,
 						}
 						err := replyCommentTask(userData, commentConfig, data)
@@ -250,10 +253,29 @@ func autoTasks(userData types.LoginStatusData, data utils.RequestData) error {
 							log.Println(err)
 						}
 						log.Printf("[%s] 发送私信任务执行完成", userData.Profile.Nickname)
+					case 135000:
+						log.Printf("[%s] 执行发送 Mlog 任务中", userData.Profile.Nickname)
+						err := sendMlogTask(userData, data)
+						if err != nil {
+							log.Println(err)
+						}
+						log.Printf("[%s] 发送 Mlog 任务执行完成", userData.Profile.Nickname)
+					case 396002:
+						log.Printf("[%s] 执行发主创说任务中", userData.Profile.Nickname)
+						commentConfig := api.CommentConfig{
+							ResType:      0,
+							ResID:        config.CommentConfig.RepliedComment[processingUser].MusicID,
+							ForwardEvent: false,
+						}
+						err := musicianSaidTask(userData, commentConfig, data)
+						if err != nil {
+							log.Println(err)
+						}
+						log.Printf("[%s] 发送主创说任务执行完成", userData.Profile.Nickname)
 					}
 				}()
 			}
-			log.Printf("[%s] 所有任务执行完成，正在重新检查并领取云豆", userData.Profile.Nickname)
+			log.Printf("[%s] 所有任务执行完成, 正在重新检查并领取云豆", userData.Profile.Nickname)
 			time.Sleep(time.Duration(10) * time.Second)
 			autoTasks, err = checkCloudBean(userData, data)
 			if err != nil {
@@ -299,12 +321,14 @@ func sendEventTask(userData types.LoginStatusData, data utils.RequestData) error
 			return err
 		}
 		if sendResult.Code == 200 {
-			log.Printf("[%s] 发送动态成功, 内容: \"%s\"", userData.Profile.Nickname, msg)
+			log.Printf("[%s] 发送动态成功, 动态ID: %d, 内容: \"%s\"", userData.Profile.Nickname, sendResult.Event.Id, msg)
 			i++
 			if config.EventSendConfig.LagConfig.LagBetweenSendAndDelete {
 				randomLag := eventLag.Get()
-				log.Printf("[%s] 延时 %d 秒", userData.Profile.Nickname, randomLag)
-				time.Sleep(time.Duration(randomLag) * time.Second)
+				if randomLag != 0 {
+					log.Printf("[%s] 延时 %d 秒", userData.Profile.Nickname, randomLag)
+					time.Sleep(time.Duration(randomLag) * time.Second)
+				}
 			}
 			delResult, err := api.DelEvent(data, int(sendResult.Event.Id))
 			if err != nil {
@@ -320,8 +344,10 @@ func sendEventTask(userData types.LoginStatusData, data utils.RequestData) error
 			failedTimes++
 		}
 		randomLag := eventLag.Get()
-		log.Printf("[%s] 延时 %d 秒", userData.Profile.Nickname, randomLag)
-		time.Sleep(time.Duration(randomLag) * time.Second)
+		if randomLag != 0 {
+			log.Printf("[%s] 延时 %d 秒", userData.Profile.Nickname, randomLag)
+			time.Sleep(time.Duration(randomLag) * time.Second)
+		}
 	}
 	return nil
 }
@@ -343,10 +369,12 @@ func replyCommentTask(userData types.LoginStatusData, commentConfig api.CommentC
 		if replyResult.Code == 200 {
 			log.Printf("[%s] 回复评论成功, 歌曲ID: %d, 评论ID: %d, 内容: \"%s\"", userData.Profile.Nickname, commentConfig.ResID, commentConfig.CommentID, msg)
 			i++
-			if config.CommentReplyConfig.LagConfig.LagBetweenSendAndDelete {
+			if config.CommentConfig.LagConfig.LagBetweenSendAndDelete {
 				randomLag := commentLag.Get()
-				log.Printf("[%s] 延时 %d 秒", userData.Profile.Nickname, randomLag)
-				time.Sleep(time.Duration(randomLag) * time.Second)
+				if randomLag != 0 {
+					log.Printf("[%s] 延时 %d 秒", userData.Profile.Nickname, randomLag)
+					time.Sleep(time.Duration(randomLag) * time.Second)
+				}
 			}
 			commentConfig.CommentID = int(replyResult.Comment.CommentId)
 			commentConfig.ResType = 0
@@ -365,8 +393,10 @@ func replyCommentTask(userData types.LoginStatusData, commentConfig api.CommentC
 			failedTimes++
 		}
 		randomLag := commentLag.Get()
-		log.Printf("[%s] 延时 %d 秒", userData.Profile.Nickname, randomLag)
-		time.Sleep(time.Duration(randomLag) * time.Second)
+		if randomLag != 0 {
+			log.Printf("[%s] 延时 %d 秒", userData.Profile.Nickname, randomLag)
+			time.Sleep(time.Duration(randomLag) * time.Second)
+		}
 	}
 	return nil
 }
@@ -401,8 +431,85 @@ func sendMsgTask(userData types.LoginStatusData, userIDs []int, data utils.Reque
 			failedTimes++
 		}
 		randomLag := msgLag.Get()
+		if randomLag != 0 {
+			log.Printf("[%s] 延时 %d 秒", userData.Profile.Nickname, randomLag)
+			time.Sleep(time.Duration(randomLag) * time.Second)
+		}
+	}
+	return nil
+}
+
+func sendMlogTask(userData types.LoginStatusData, data utils.RequestData) error {
+	if !checkPathExists(config.SendMlogConfig.PicFolder) {
+		return fmt.Errorf("[%s] \"%s\" 图片文件夹不存在, 无法发送 Mlog", userData.Profile.Nickname, config.SendMlogConfig.PicFolder)
+	}
+	files, err := os.ReadDir(config.SendMlogConfig.PicFolder)
+	if err != nil {
+		return err
+	}
+	if len(files) == 0 {
+		return fmt.Errorf("[%s] \"%s\" 图片文件夹为空, 无法发送 Mlog", userData.Profile.Nickname, config.SendMlogConfig.PicFolder)
+	}
+	rand.Seed(time.Now().UnixNano())
+	fileName := files[rand.Intn(len(files))].Name()
+	musicID := config.SendMlogConfig.MusicIDs[rand.Intn(len(config.SendMlogConfig.MusicIDs))]
+	text := randomText(config.Content)
+	mlogData, err := api.SendPicMlog(data, text, musicID, []string{fmt.Sprintf("%s/%s", config.SendMlogConfig.PicFolder, fileName)})
+	if err != nil {
+		return err
+	}
+	if mlogData.Code != 200 {
+		log.Errorf("[%s] 发送 Mlog 失败, 代码: %d, 原因: \"%s\"", userData.Profile.Nickname, mlogData.Code, mlogData.Message)
+	} else {
+		log.Printf("[%s] 发送 Mlog 成功, 动态ID: %d, 内容: \"%s\", 图片: \"%s\"", userData.Profile.Nickname, mlogData.Data.Event.Id, text, fmt.Sprintf("%s/%s", config.SendMlogConfig.PicFolder, fileName))
+	}
+	randomLag := mlogLag.Get()
+	if randomLag != 0 {
 		log.Printf("[%s] 延时 %d 秒", userData.Profile.Nickname, randomLag)
 		time.Sleep(time.Duration(randomLag) * time.Second)
+	}
+	result, err := api.DelEvent(data, int(mlogData.Data.Event.Id))
+	if err != nil {
+		return err
+	}
+	if result.Code != 200 {
+		log.Errorf("[%s] 删除 Mlog 失败, 动态ID: %d, 代码: %d, 原因: \"%s\"", userData.Profile.Nickname, mlogData.Data.Event.Id, result.Code, result.Message)
+	} else {
+		log.Printf("[%s] 删除 Mlog 成功, 动态ID: %d", userData.Profile.Nickname, mlogData.Data.Event.Id)
+	}
+	return nil
+}
+
+func musicianSaidTask(userData types.LoginStatusData, commentConfig api.CommentConfig, data utils.RequestData) error {
+	msg := randomText(config.Content)
+	commentConfig.Content = msg
+	replyResult, err := api.AddComment(data, commentConfig)
+	if err != nil {
+		return err
+	}
+	if replyResult.Code == 200 {
+		log.Printf("[%s] 发送评论成功, 歌曲ID: %d, 评论ID: %d, 内容: \"%s\"", userData.Profile.Nickname, commentConfig.ResID, commentConfig.CommentID, msg)
+		if config.CommentConfig.LagConfig.LagBetweenSendAndDelete {
+			randomLag := commentLag.Get()
+			if randomLag != 0 {
+				log.Printf("[%s] 延时 %d 秒", userData.Profile.Nickname, randomLag)
+				time.Sleep(time.Duration(randomLag) * time.Second)
+			}
+		}
+		commentConfig.CommentID = int(replyResult.Comment.CommentId)
+		commentConfig.ResType = 0
+		commentConfig.Content = ""
+		delResult, err := api.DelComment(data, commentConfig)
+		if err != nil {
+			return err
+		}
+		if delResult.Code != 200 {
+			log.Errorf("[%s] 删除评论失败, 歌曲ID: %d, 评论ID: %d, 代码: %d", userData.Profile.Nickname, commentConfig.ResID, commentConfig.CommentID, delResult.Code)
+		} else {
+			log.Printf("[%s] 删除评论成功, 歌曲ID: %d, 评论ID: %d", userData.Profile.Nickname, commentConfig.ResID, commentConfig.CommentID)
+		}
+	} else {
+		log.Errorf("[%s] 发送评论失败, 歌曲ID: %d, 评论ID: %d, 内容: \"%s\", 代码: %d", userData.Profile.Nickname, commentConfig.ResID, commentConfig.CommentID, msg, replyResult.Code)
 	}
 	return nil
 }
@@ -422,7 +529,7 @@ func checkCloudBean(userData types.LoginStatusData, data utils.RequestData) ([]i
 	var autoTasks []int
 	for i := 0; i < len(tasksData.Data.List); i++ {
 		if tasksData.Data.List[i].Status == 20 {
-			log.Printf("[%s] 「%s」任务已完成，正在领取云豆", userData.Profile.Nickname, tasksData.Data.List[i].Description)
+			log.Printf("[%s] 「%s」任务已完成, 正在领取云豆", userData.Profile.Nickname, tasksData.Data.List[i].Description)
 			isObtainCloudBean = true
 			result, err := api.ObtainCloudbean(data, int(tasksData.Data.List[i].UserMissionId), tasksData.Data.List[i].Period)
 			if err != nil {
@@ -431,17 +538,11 @@ func checkCloudBean(userData types.LoginStatusData, data utils.RequestData) ([]i
 			if result.Code == 200 {
 				log.Printf("[%s] 领取「%s」任务云豆成功", userData.Profile.Nickname, tasksData.Data.List[i].Description)
 			} else {
-				log.Printf("[%s] 领取「%s」任务云豆失败: %s", userData.Profile.Nickname, tasksData.Data.List[i].Description, result.Message)
+				log.Errorf("[%s] 领取「%s」任务云豆失败: %s", userData.Profile.Nickname, tasksData.Data.List[i].Description, result.Message)
 			}
 		}
-		/*
-			if autoTaskAvail(tasksData.Data.List[i].MissionId) && tasksData.Data.List[i].Status != 100 && tasksData.Data.List[i].Status != 20 {
-				log.Printf("[%s] 任务「%s」任务未完成，已添加到任务列表", userData.Profile.Nickname, tasksData.Data.List[i].Description)
-				autoTasks = append(autoTasks, tasksData.Data.List[i].MissionId)
-			}
-		*/
-		if autoTaskAvail(tasksData.Data.List[i].MissionId) {
-			log.Printf("[%s] 任务「%s」任务未完成，已添加到任务列表", userData.Profile.Nickname, tasksData.Data.List[i].Description)
+		if autoTaskAvail(tasksData.Data.List[i].MissionId) { //&& tasksData.Data.List[i].Status != 100 && tasksData.Data.List[i].Status != 20 {
+			log.Printf("[%s] 任务「%s」任务未完成, 已添加到任务列表", userData.Profile.Nickname, tasksData.Data.List[i].Description)
 			autoTasks = append(autoTasks, tasksData.Data.List[i].MissionId)
 		}
 	}
@@ -454,19 +555,9 @@ func checkCloudBean(userData types.LoginStatusData, data utils.RequestData) ([]i
 		log.Printf("[%s] 账号当前云豆数: %d", userData.Profile.Nickname, cloudBeanData.Data.CloudBean)
 	}
 	if len(autoTasks) == 0 {
-		log.Printf("[%s] 后面的任务，明天再来探索吧！", userData.Profile.Nickname)
+		log.Printf("[%s] 后面的任务, 明天再来探索吧！", userData.Profile.Nickname)
 	}
 	return autoTasks, err
-}
-
-func autoTaskAvail(val int) bool {
-	availAutoTasks := []int{135000, 399000, 398000, 393001, 395002, 396002}
-	for i := 0; i < len(availAutoTasks); i++ {
-		if val == availAutoTasks[i] {
-			return true
-		}
-	}
-	return false
 }
 
 func randomText(textSlice []string) string {
@@ -487,5 +578,15 @@ func checkPathExists(path string) bool {
 		return false
 	}
 	log.Errorln(err)
+	return false
+}
+
+func autoTaskAvail(val int) bool {
+	availAutoTasks := []int{135000, 399000, 398000, 393001, 395002, 396002}
+	for i := 0; i < len(availAutoTasks); i++ {
+		if val == availAutoTasks[i] {
+			return true
+		}
+	}
 	return false
 }

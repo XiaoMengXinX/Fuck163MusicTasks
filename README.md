@@ -26,20 +26,26 @@
 **欢迎给本项目提 issue 及 pull request !**
 
 ## 🧩 依赖
-本项目依赖于 [Binaryify](https://github.com/Binaryify) 的 [网易云音乐API (Binaryify/NeteaseCloudMusicApi)](https://github.com/Binaryify/NeteaseCloudMusicApi)
 
-您可以自建服务，也可以使用 [Binaryify 在 vercel 上的 deployment](https://github.com/Binaryify/NeteaseCloudMusicApi/deployments/) ，个人推荐自建以保证数据安全性
+~~本项目依赖于 [Binaryify](https://github.com/Binaryify)的 [网易云音乐API (Binaryify/NeteaseCloudMusicApi)](https://github.com/Binaryify/NeteaseCloudMusicApi)~~
+
+~~您可以自建服务，也可以使用 [Binaryify 在 vercel 上的 deployment](https://github.com/Binaryify/NeteaseCloudMusicApi/deployments/)，个人推荐自建以保证数据安全性~~
+
+本项目无需任何依赖
 
 ## 📖 快速开始
+
 **※ 请确保你已经阅读了下方的 "配置"，并按说明写好了你自己的配置文件**
 
 #### 关于如何获取 MUSIC_U :
 
-到 [此Release版本](https://github.com/XiaoMengXinX/Fuck163MusicTasks/releases/tag/v1.1.1) 下载小工具 **QuickLogin** 并在命令行运行，使用网易云客户端扫描授权登陆二维码，即可获取到你账号的 `MUSIC_U`
+到 [此Release版本](https://github.com/XiaoMengXinX/Fuck163MusicTasks/releases/tag/v1.1.1) 下载小工具 **QuickLogin**
+并在命令行运行，使用网易云客户端扫描授权登陆二维码，即可获取到你账号的 `MUSIC_U`
 
 #### 运行
 
-请到 [Release 页](https://github.com/XiaoMengXinX/Fuck163MusicTasks/releases) 下载最新版的构建，并把你的配置文件重命名为 `config.json`，将其与下载的可执行文件放在同一目录
+请到 [Release 页](https://github.com/XiaoMengXinX/Fuck163MusicTasks/releases) 下载最新版的构建，并把你的配置文件重命名为 `config.json`
+，将其与下载的可执行文件放在同一目录
 
 确保配置无误后，在命令行运行 Fuck163MusicTasks
 
@@ -99,15 +105,15 @@ $ ./Fuck163MusicTasks
       "LagMax": 120 // 随机延时最大值
     }
   },
-  "CommentReplyConfig": { // 回复评论配置
+  "CommentConfig": { // 评论配置
     "RepliedComment": [ // 填入你想回复的评论信息, 此处的 Array 对应上面的用户配置
       { // USER_1 的评论配置
-        "ID": 123456, // 待回复评论的歌曲ID
-        "CommentId": 123456 // 待回复评论的评论ID
+        "MusicID": 123456, // 待回复评论的歌曲ID，同时也是主创说的发布歌曲ID
+        "CommentID": 123456 // 待回复评论的评论ID
       },
       { // USER_2 的评论配置
-        "ID": 123456,
-        "CommentId": 123456
+        "MusicID": 123456,
+        "CommentID": 123456
       }
     ],
     "LagConfig": { // 评论延时设置, 配置项同上
@@ -134,6 +140,14 @@ $ ./Fuck163MusicTasks
       "LagMin": 5,
       "LagMax": 20
     }
+  },
+    "SendMlogConfig": { // 发送 Mlog 配置
+    "PicFolder": "./pic", // Mlog 图片文件夹, 随机使用文件夹下的图片
+    "MusicIDs": [ // Mlog 的 bgm, 随机使用
+      1322404518,
+      1395512014,
+      1295601353
+    ]
   },
   "Content": [ // 发送动态、回复评论、回复私信的文本内容, 须至少填入两条, 程序将会随机选择
     "YOUR_CUSTOM_TEXT_1",
@@ -170,7 +184,8 @@ Usage of ./Fuck163MusicTasks:
 使用方法：
 
 1. 将 `config.json` 中的 `Cron.Enabled` 设为 `true`
-2. 到各种 [Cron表达式生成网站](https://www.bejson.com/othertools/cron/) 生成你想要的表达式（也可直接使用 `config_example.json` 中的 `0 0 1,13 * * ?`）
+2. 到各种 [Cron表达式生成网站](https://www.bejson.com/othertools/cron/) 生成你想要的表达式（也可直接使用 `config_example.json` 中的 `0 0 1,13 * * ?`
+   ）
 3. 将表达式填入 Cron.Expression 设置项
 4. 保存配置文件，运行程序并挂到后台（linux 推荐使用 [screen](https://zh.wikipedia.org/wiki/GNU_Screen)）
 5. 坐和放宽
@@ -207,6 +222,6 @@ bash build.sh linux arm64
 
 ## 📝 To Do
 
-- [ ] 自动完成 发布主创说 任务
-- [ ] 全局使用 eapi
-- [ ] 自动发布 Mlog
+- [x] 自动完成 发布主创说 任务
+- [x] 全局使用 eapi
+- [x] 自动发布 Mlog
