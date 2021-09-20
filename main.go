@@ -209,10 +209,12 @@ func autoTasks(userData types.LoginStatusData, data utils.RequestData) error {
 		}
 		if len(autoTasks) != 0 {
 			log.Printf("[%s] 正在运行自动任务中", userData.Profile.Nickname)
-			musicianTasks(userData, data, autoTasks)
+			for i := 0; i < len(autoTasks); i++ {
+				musicianTasks(userData, data, autoTasks, i)
+			}
 			log.Printf("[%s] 所有任务执行完成, 正在重新检查并领取云豆", userData.Profile.Nickname)
 			time.Sleep(time.Duration(10) * time.Second)
-			autoTasks, err = checkCloudBean(userData, data)
+			_, err = checkCloudBean(userData, data)
 			if err != nil {
 				return err
 			}
@@ -221,75 +223,71 @@ func autoTasks(userData types.LoginStatusData, data utils.RequestData) error {
 	return nil
 }
 
-func musicianTasks(userData types.LoginStatusData, data utils.RequestData, autoTasks []int) {
-	for i := 0; i < len(autoTasks); i++ {
-		func() {
-			defer func() {
-				err := recover()
-				if err != nil {
-					log.Errorln(err)
-				}
-			}()
-			switch autoTasks[i] {
-			case 399000:
-				log.Printf("[%s] 执行音乐人签到任务中", userData.Profile.Nickname)
-				result, err := api.MusicianSign(data)
-				if err != nil {
-					log.Println(err)
-				}
-				if result.Code == 200 {
-					log.Printf("[%s] 音乐人签到成功", userData.Profile.Nickname)
-				} else {
-					log.Printf("[%s] 音乐人签到失败: %s", userData.Profile.Nickname, result.Message)
-				}
-			case 398000:
-				log.Printf("[%s] 执行发送动态任务中", userData.Profile.Nickname)
-				err := sendEventTask(userData, data)
-				if err != nil {
-					log.Println(err)
-				}
-				log.Printf("[%s] 发送动态任务执行完成", userData.Profile.Nickname)
-			case 393001:
-				log.Printf("[%s] 执行回复评论任务中", userData.Profile.Nickname)
-				commentConfig := api.CommentConfig{
-					ResType:      0,
-					ResID:        config.CommentConfig.RepliedComment[processingUser].MusicID,
-					CommentID:    config.CommentConfig.RepliedComment[processingUser].CommentID,
-					ForwardEvent: false,
-				}
-				err := replyCommentTask(userData, commentConfig, data)
-				if err != nil {
-					log.Println(err)
-				}
-				log.Printf("[%s] 发送回复评论执行完成", userData.Profile.Nickname)
-			case 395002:
-				log.Printf("[%s] 执行发送私信任务中", userData.Profile.Nickname)
-				err := sendMsgTask(userData, config.SendMsgConfig.UserID[processingUser], data)
-				if err != nil {
-					log.Println(err)
-				}
-				log.Printf("[%s] 发送私信任务执行完成", userData.Profile.Nickname)
-			case 135000:
-				log.Printf("[%s] 执行发送 Mlog 任务中", userData.Profile.Nickname)
-				err := sendMlogTask(userData, data)
-				if err != nil {
-					log.Println(err)
-				}
-				log.Printf("[%s] 发送 Mlog 任务执行完成", userData.Profile.Nickname)
-			case 396002:
-				log.Printf("[%s] 执行发主创说任务中", userData.Profile.Nickname)
-				commentConfig := api.CommentConfig{
-					ResType:      0,
-					ResID:        config.CommentConfig.RepliedComment[processingUser].MusicID,
-					ForwardEvent: false,
-				}
-				err := musicianSaidTask(userData, commentConfig, data)
-				if err != nil {
-					log.Println(err)
-				}
-				log.Printf("[%s] 发送主创说任务执行完成", userData.Profile.Nickname)
-			}
-		}()
+func musicianTasks(userData types.LoginStatusData, data utils.RequestData, autoTasks []int, i int) {
+	defer func() {
+		err := recover()
+		if err != nil {
+			log.Errorln(err)
+		}
+	}()
+	switch autoTasks[i] {
+	case 399000:
+		log.Printf("[%s] 执行音乐人签到任务中", userData.Profile.Nickname)
+		result, err := api.MusicianSign(data)
+		if err != nil {
+			log.Println(err)
+		}
+		if result.Code == 200 {
+			log.Printf("[%s] 音乐人签到成功", userData.Profile.Nickname)
+		} else {
+			log.Printf("[%s] 音乐人签到失败: %s", userData.Profile.Nickname, result.Message)
+		}
+	case 398000:
+		log.Printf("[%s] 执行发送动态任务中", userData.Profile.Nickname)
+		err := sendEventTask(userData, data)
+		if err != nil {
+			log.Println(err)
+		}
+		log.Printf("[%s] 发送动态任务执行完成", userData.Profile.Nickname)
+	case 393001:
+		log.Printf("[%s] 执行回复评论任务中", userData.Profile.Nickname)
+		commentConfig := api.CommentConfig{
+			ResType:      0,
+			ResID:        config.CommentConfig.RepliedComment[processingUser].MusicID,
+			CommentID:    config.CommentConfig.RepliedComment[processingUser].CommentID,
+			ForwardEvent: false,
+		}
+		err := replyCommentTask(userData, commentConfig, data)
+		if err != nil {
+			log.Println(err)
+		}
+		log.Printf("[%s] 发送回复评论执行完成", userData.Profile.Nickname)
+	case 395002:
+		log.Printf("[%s] 执行发送私信任务中", userData.Profile.Nickname)
+		err := sendMsgTask(userData, config.SendMsgConfig.UserID[processingUser], data)
+		if err != nil {
+			log.Println(err)
+		}
+		log.Printf("[%s] 发送私信任务执行完成", userData.Profile.Nickname)
+	case 135000:
+		log.Printf("[%s] 执行发送 Mlog 任务中", userData.Profile.Nickname)
+		err := sendMlogTask(userData, data)
+		if err != nil {
+			log.Println(err)
+		}
+		log.Printf("[%s] 发送 Mlog 任务执行完成", userData.Profile.Nickname)
+	case 396002:
+		log.Printf("[%s] 执行发主创说任务中", userData.Profile.Nickname)
+		commentConfig := api.CommentConfig{
+			ResType:      0,
+			ResID:        config.CommentConfig.RepliedComment[processingUser].MusicID,
+			ForwardEvent: false,
+		}
+		err := musicianSaidTask(userData, commentConfig, data)
+		if err != nil {
+			log.Println(err)
+		}
+		log.Printf("[%s] 发送主创说任务执行完成", userData.Profile.Nickname)
 	}
 }
 
