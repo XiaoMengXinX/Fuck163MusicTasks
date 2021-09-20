@@ -72,7 +72,7 @@ $ ./Fuck163MusicTasks
 
 ## 📋 配置
 
-请下载并修改项目根目录下的 config_example.json
+请下载并修改项目根目录下的 [config_example.json](https://raw.githubusercontent.com/XiaoMengXinX/Fuck163MusicTasks/master/config_example.json)
 
 **请不要直接复制粘贴 README 中的示例配置，如果一定要这样做的话，请确保在解析前移除所有注释。**
 
