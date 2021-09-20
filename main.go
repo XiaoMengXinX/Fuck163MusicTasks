@@ -127,7 +127,10 @@ Build ARCH: %s
 	mlogLag.Set(config.SendMlogConfig.LagConfig)
 
 	startTasks()
+	startCron()
+}
 
+func startCron() {
 	if config.Cron.Enabled {
 		location, err := time.LoadLocation("Asia/Shanghai")
 		if err != nil {
