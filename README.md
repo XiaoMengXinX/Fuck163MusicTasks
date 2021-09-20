@@ -41,7 +41,7 @@
 
 #### 关于如何获取 MUSIC_U :
 
-到 [此Release版本](https://github.com/XiaoMengXinX/Fuck163MusicTasks/releases/tag/v1.1.1) 下载小工具 **QuickLogin**
+到 [此Release版本](https://github.com/XiaoMengXinX/Fuck163MusicTasks/releases/tag/v2.0.0) 下载小工具 **QuickLogin**
 并在命令行运行，使用网易云客户端扫描授权登陆二维码，即可获取到你账号的 `MUSIC_U`
 
 #### 运行
