@@ -547,7 +547,7 @@ func checkCloudBean(userData types.LoginStatusData, data utils.RequestData) ([]i
 			}
 		}
 		if autoTaskAvail(tasksData.Data.List[i].MissionId) && tasksData.Data.List[i].Status != 100 && tasksData.Data.List[i].Status != 20 {
-			log.Printf("[%s] 任务「%s」任务未完成, 已添加到任务列表", userData.Profile.Nickname, tasksData.Data.List[i].Description)
+			log.Printf("[%s] 任务「%s」任务未完成或进行中", userData.Profile.Nickname, tasksData.Data.List[i].Description)
 			autoTasks = append(autoTasks, tasksData.Data.List[i].MissionId)
 		}
 	}
