@@ -1,4 +1,4 @@
-module github.com/XiaoMengXinX/Fuck163MusicTasks
+module github.com/XiaoMengXinX/Fuck163MusicTasks/v2
 
 go 1.16
 
