@@ -1,13 +1,15 @@
 package main
 
-import util "github.com/XiaoMengXinX/Music163Api-Go/utils"
+import (
+	"net/http"
+)
 
 // Config 配置文件结构
 type Config struct {
 	NeteaseAPI string `json:"NeteaseAPI"`
 	DEBUG      bool   `json:"DEBUG"`
 	Users      []struct {
-		Cookies util.Cookies `json:"Cookies"`
+		Cookies []*http.Cookie `json:"Cookies"`
 	} `json:"Users"`
 	EventSendConfig struct {
 		LagConfig LagConfig `json:"LagConfig"`

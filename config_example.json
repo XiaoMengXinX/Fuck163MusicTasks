@@ -5,16 +5,16 @@
     {
       "Cookies": [
         {
-          "key": "MUSIC_U",
-          "value": "USER_1_MUSIC_U"
+          "Name": "MUSIC_U",
+          "Value": "USER_1_MUSIC_U"
         }
       ]
     },
     {
       "Cookies": [
         {
-          "key": "MUSIC_U",
-          "value": "USER_2_MUSIC_U"
+          "Name": "MUSIC_U",
+          "Value": "USER_2_MUSIC_U"
         }
       ]
     }

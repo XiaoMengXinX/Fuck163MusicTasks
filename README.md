@@ -84,16 +84,16 @@ $ ./Fuck163MusicTasks
     {
       "Cookies": [ // 至少填入一个用户的 MUSIC_U, 支持多用户及多 Cookie
         {
-          "key": "MUSIC_U",
-          "value": "USER_1_MUSIC_U"
+          "Name": "MUSIC_U",
+          "Value": "USER_1_MUSIC_U"
         }
       ]
     },
     {
       "Cookies": [
         {
-          "key": "MUSIC_U",
-          "value": "USER_2_MUSIC_U"
+          "Name": "MUSIC_U",
+          "Value": "USER_2_MUSIC_U"
         }
       ]
     }
