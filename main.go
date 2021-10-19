@@ -252,7 +252,7 @@ func musicianTasks(userData types.LoginStatusData, data utils.RequestData, autoT
 	case 393001:
 		log.Printf("[%s] 执行回复评论任务中", userData.Profile.Nickname)
 		commentConfig := api.CommentConfig{
-			ResType:      0,
+			ResType:      api.ResTypeMusic,
 			ResID:        config.CommentConfig.RepliedComment[processingUser].MusicID,
 			CommentID:    config.CommentConfig.RepliedComment[processingUser].CommentID,
 			ForwardEvent: false,
@@ -279,7 +279,7 @@ func musicianTasks(userData types.LoginStatusData, data utils.RequestData, autoT
 	case 396002:
 		log.Printf("[%s] 执行发主创说任务中", userData.Profile.Nickname)
 		commentConfig := api.CommentConfig{
-			ResType:      0,
+			ResType:      api.ResTypeMusic,
 			ResID:        config.CommentConfig.RepliedComment[processingUser].MusicID,
 			ForwardEvent: false,
 		}
@@ -335,7 +335,7 @@ func sendEventTask(userData types.LoginStatusData, data utils.RequestData) error
 					time.Sleep(time.Duration(randomLag) * time.Second)
 				}
 			}
-			delResult, err := api.DelEvent(data, int(sendResult.Event.Id))
+			delResult, err := api.DelEvent(data, sendResult.Event.Id)
 			if err != nil {
 				return err
 			}
@@ -381,8 +381,8 @@ func replyCommentTask(userData types.LoginStatusData, commentConfig api.CommentC
 					time.Sleep(time.Duration(randomLag) * time.Second)
 				}
 			}
-			commentConfig.CommentID = int(replyResult.Comment.CommentId)
-			commentConfig.ResType = 0
+			commentConfig.CommentID = replyResult.Comment.CommentId
+			commentConfig.ResType = api.ResTypeMusic
 			commentConfig.Content = ""
 			delResult, err := api.DelComment(data, commentConfig)
 			if err != nil {
@@ -473,7 +473,7 @@ func sendMlogTask(userData types.LoginStatusData, data utils.RequestData) error 
 		log.Printf("[%s] 延时 %d 秒", userData.Profile.Nickname, randomLag)
 		time.Sleep(time.Duration(randomLag) * time.Second)
 	}
-	result, err := api.DelEvent(data, int(mlogData.Data.Event.Id))
+	result, err := api.DelEvent(data, mlogData.Data.Event.Id)
 	if err != nil {
 		return err
 	}
@@ -501,8 +501,8 @@ func musicianSaidTask(userData types.LoginStatusData, commentConfig api.CommentC
 				time.Sleep(time.Duration(randomLag) * time.Second)
 			}
 		}
-		commentConfig.CommentID = int(replyResult.Comment.CommentId)
-		commentConfig.ResType = 0
+		commentConfig.CommentID = replyResult.Comment.CommentId
+		commentConfig.ResType = api.ResTypeMusic
 		commentConfig.Content = ""
 		delResult, err := api.DelComment(data, commentConfig)
 		if err != nil {
@@ -536,7 +536,7 @@ func checkCloudBean(userData types.LoginStatusData, data utils.RequestData) ([]i
 		if tasksData.Data.List[i].Status == 20 {
 			log.Printf("[%s] 「%s」任务已完成, 正在领取云豆", userData.Profile.Nickname, tasksData.Data.List[i].Description)
 			isObtainCloudBean = true
-			result, err := api.ObtainCloudbean(data, int(tasksData.Data.List[i].UserMissionId), tasksData.Data.List[i].Period)
+			result, err := api.ObtainCloudbean(data, tasksData.Data.List[i].UserMissionId, tasksData.Data.List[i].Period)
 			if err != nil {
 				log.Errorln(err)
 			}
