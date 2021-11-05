@@ -27,4 +27,4 @@ LDFlags="\
     -X 'main.buildTime=${BUILD_TIME}' \
 "
 
-CGO_ENABLED=0 go build ${OUTPUT_ARG} -trimpath -ldflags "${LDFlags}"
+CGO_ENABLED=0 go build "${OUTPUT_ARG}" -trimpath -ldflags "${LDFlags}"
