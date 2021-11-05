@@ -4,14 +4,6 @@ COMMIT_SHA=$(git rev-parse HEAD)
 VERSION=$(git describe --tags)
 BUILD_TIME=$(date +'%Y-%m-%d %T')
 
-if which systeminfo >/dev/null; then
-  BUILD_OS="$(systeminfo | grep "OS Name:" | sed -e "s/OS Name://" -e "s/  //g" -e "s/ //")"
-elif which lsb_release >/dev/null; then
-  BUILD_OS="$(lsb_release -i -s) $(lsb_release -r -s)"
-else
-  BUILD_OS="null"
-fi
-
 CUSTOM_GOOS=$1
 CUSTOM_GOARCH=$2
 OUTPUT_ARG=""
@@ -33,7 +25,6 @@ LDFlags="\
     -X 'main.version=${VERSION}' \
     -X 'main.commitSHA=${COMMIT_SHA}' \
     -X 'main.buildTime=${BUILD_TIME}' \
-    -X 'main.buildOS=${BUILD_OS}' \
 "
 
-go build ${OUTPUT_ARG} -trimpath -ldflags "${LDFlags}"
+CGO_ENABLED=0 go build ${OUTPUT_ARG} -trimpath -ldflags "${LDFlags}"

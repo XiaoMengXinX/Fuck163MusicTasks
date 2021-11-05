@@ -45,7 +45,6 @@ var (
 	version        = ""                                                 // 程序版本
 	commitSHA      = ""                                                 // 编译哈希
 	buildTime      = ""                                                 // 编译日期
-	buildOS        = ""                                                 // 编译系统
 	buildARCH      = fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH) // 运行环境
 )
 
@@ -87,9 +86,8 @@ func main() {
 		fmt.Printf(`Fuck163MusicTasks %s (%s)
 Build Hash: %s
 Build Date: %s
-Build OS: %s
 Build ARCH: %s
-`, version, runtimeVersion, commitSHA, buildTime, buildOS, buildARCH)
+`, version, runtimeVersion, commitSHA, buildTime, buildARCH)
 		os.Exit(0)
 	}
 
