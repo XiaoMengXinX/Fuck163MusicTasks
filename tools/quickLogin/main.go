@@ -46,11 +46,8 @@ func init() {
 }
 
 var (
-	isDEBUG = flag.Bool("d", false, "DEBUG mode")
-)
-var (
-	rmPre = regexp.MustCompile(`(.*)MUSIC_U=`)
-	rmSuf = regexp.MustCompile(`;(.*)`)
+	isDEBUG      = flag.Bool("d", false, "DEBUG mode")
+	cookieParser = regexp.MustCompile(`MUSIC_U=(.*?);`)
 )
 
 func main() {
@@ -74,9 +71,17 @@ func main() {
 		}
 		if loginData.Code == 803 {
 			fmt.Println(loginData.Message)
-			MUSIC_U := rmSuf.ReplaceAllString(rmPre.ReplaceAllString(header, ""), "")
-			if MUSIC_U != "" {
-				fmt.Printf("[MUSIC_U] %s\n", MUSIC_U)
+			cookies := header.Values("Set-Cookie")
+			var musicU string
+			for _, cookie := range cookies {
+				str := cookieParser.FindString(cookie)
+				if str != "" {
+					musicU = strings.Trim(strings.Trim(str, "MUSIC_U="), ";")
+					break
+				}
+			}
+			if musicU != "" {
+				fmt.Printf("[MUSIC_U] %s\n", musicU)
 			} else {
 				log.Errorln("解析 MUSIC_U 失败，请重新登陆")
 			}

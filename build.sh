@@ -20,6 +20,8 @@ if [[ "$3" == "-o" ]]; then
   export OUTPUT_ARG="-o $4"
 fi
 
+export CGO_ENABLED=0
+
 LDFlags="\
     -s -w
     -X 'main.version=${VERSION}' \
@@ -27,4 +29,4 @@ LDFlags="\
     -X 'main.buildTime=${BUILD_TIME}' \
 "
 
-CGO_ENABLED=0 go build "${OUTPUT_ARG}" -trimpath -ldflags "${LDFlags}"
+go build ${OUTPUT_ARG} -trimpath -ldflags "${LDFlags}"
