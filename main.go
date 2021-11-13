@@ -130,7 +130,7 @@ Build ARCH: %s
 
 func startCron() {
 	if config.Cron.Enabled {
-		location, err := time.LoadLocation("Asia/Shanghai")
+		location, err := time.LoadLocation("Asia/Hong_Kong")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -174,7 +174,7 @@ func startTasks() {
 		if err != nil {
 			log.Errorln(err)
 		}
-		if userData.Account.Id == 0 {
+		if userData.Profile.UserId == 0 {
 			log.Errorf("获取 User[%d] 登录状态失败, 请检查 MUSIC_U 是否失效", processingUser)
 		} else {
 			err = autoTasks(userData, data)
