@@ -206,16 +206,22 @@ func autoTasks(userData types.LoginStatusData, data utils.RequestData) error {
 			return err
 		}
 		if len(autoTasks) != 0 {
-			log.Printf("[%s] 正在运行自动任务中", userData.Profile.Nickname)
+			log.Printf("[%s] 正在完成音乐人任务中", userData.Profile.Nickname)
 			for i := 0; i < len(autoTasks); i++ {
 				musicianTasks(userData, data, autoTasks, i)
 			}
-			log.Printf("[%s] 所有任务执行完成, 正在重新检查并领取云豆", userData.Profile.Nickname)
+			log.Printf("[%s] 音乐人任务执行完成, 正在重新检查并领取云豆", userData.Profile.Nickname)
 			time.Sleep(time.Duration(10) * time.Second)
 			_, err = checkCloudBean(userData, data)
 			if err != nil {
 				return err
 			}
+		}
+	}
+	if config.AutoGetVipGrowthpoint {
+		err := vipGrowthpointTask(userData, data)
+		if err != nil {
+			return err
 		}
 	}
 	return nil
@@ -515,6 +521,21 @@ func musicianSaidTask(userData types.LoginStatusData, commentConfig api.CommentC
 		log.Errorf("[%s] 发送评论失败, 歌曲ID: %d, 评论ID: %d, 内容: \"%s\", 代码: %d", userData.Profile.Nickname, commentConfig.ResID, commentConfig.CommentID, msg, replyResult.Code)
 	}
 	return nil
+}
+
+func vipGrowthpointTask(userData types.LoginStatusData, data utils.RequestData) error {
+	log.Printf("[%s] 正在检查会员状态", userData.Profile.Nickname)
+	vipStat, err := api.GetVipInfo(data)
+	if err != nil {
+		return err
+	}
+	if vipStat.Data.RedVipLevel == 0 {
+		log.Printf("[%s] 无会员权限，跳过领取成长值任务", userData.Profile.Nickname)
+		return nil
+	}
+	log.Printf("[%s] 检查成功，正在领取会员任务成长值", userData.Profile.Nickname)
+	_, err = api.VipTaskRewardAll(data)
+	return err
 }
 
 func checkCloudBean(userData types.LoginStatusData, data utils.RequestData) ([]int, error) {

@@ -30,8 +30,9 @@ type Config struct {
 		MusicIDs  []int     `json:"MusicIDs"`
 		LagConfig LagConfig `json:"LagConfig"`
 	} `json:"SendMlogConfig"`
-	Content []string `json:"Content"`
-	Cron    struct {
+	AutoGetVipGrowthpoint bool     `json:"AutoGetVipGrowthpoint"`
+	Content               []string `json:"Content"`
+	Cron                  struct {
 		Enabled    bool      `json:"Enabled"`
 		Expression string    `json:"Expression"`
 		EnableLag  bool      `json:"EnableLag"`

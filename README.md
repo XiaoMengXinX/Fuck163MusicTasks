@@ -151,6 +151,7 @@ $ ./Fuck163MusicTasks
       1295601353
     ]
   },
+  "AutoGetVipGrowthpoint": false, // 是否自动领取会员任务成长值 (默认关闭)
   "Content": [ // 发送动态、回复评论、回复私信的文本内容, 须至少填入两条, 程序将会随机选择
     "YOUR_CUSTOM_TEXT_1",
     "YOUR_CUSTOM_TEXT_2"
