@@ -6,9 +6,8 @@ import (
 
 // Config 配置文件结构
 type Config struct {
-	NeteaseAPI string `json:"NeteaseAPI"`
-	DEBUG      bool   `json:"DEBUG"`
-	Users      []struct {
+	DEBUG bool `json:"DEBUG"`
+	Users []struct {
 		Cookies []*http.Cookie `json:"Cookies"`
 	} `json:"Users"`
 	EventSendConfig struct {

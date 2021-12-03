@@ -78,7 +78,6 @@ $ ./Fuck163MusicTasks
 
 ```
 {
-  "NeteaseAPI": "https://netease-cloud-music-api-binaryify.vercel.app", // 参建上方的 "依赖", 建议填入自己部署的API
   "DEBUG": false, // 是否开启 DEBUG, 也可以在命令行参数加 -d 以开启 DEBUG模式
   "Users": [ // 用户配置
     {

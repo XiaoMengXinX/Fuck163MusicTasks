@@ -1,5 +1,4 @@
 {
-  "NeteaseAPI": "https://netease-cloud-music-api-binaryify.vercel.app",
   "DEBUG": false,
   "Users": [
     {
