@@ -235,7 +235,7 @@ func musicianTasks(userData types.LoginStatusData, data utils.RequestData, autoT
 		}
 	}()
 	switch autoTasks[i] {
-	case 399000:
+	case 749006:
 		log.Printf("[%s] 执行音乐人签到任务中", userData.Profile.Nickname)
 		result, err := api.MusicianSign(data)
 		if err != nil {
@@ -246,14 +246,14 @@ func musicianTasks(userData types.LoginStatusData, data utils.RequestData, autoT
 		} else {
 			log.Printf("[%s] 音乐人签到失败: %s", userData.Profile.Nickname, result.Message)
 		}
-	case 398000:
+	case 740004:
 		log.Printf("[%s] 执行发送动态任务中", userData.Profile.Nickname)
 		err := sendEventTask(userData, data)
 		if err != nil {
 			log.Println(err)
 		}
 		log.Printf("[%s] 发送动态任务执行完成", userData.Profile.Nickname)
-	case 393001:
+	case 732004:
 		log.Printf("[%s] 执行回复评论任务中", userData.Profile.Nickname)
 		commentConfig := api.CommentConfig{
 			ResType:      api.ResTypeMusic,
@@ -266,22 +266,22 @@ func musicianTasks(userData types.LoginStatusData, data utils.RequestData, autoT
 			log.Println(err)
 		}
 		log.Printf("[%s] 发送回复评论执行完成", userData.Profile.Nickname)
-	case 395002:
+	case 755001:
 		log.Printf("[%s] 执行发送私信任务中", userData.Profile.Nickname)
 		err := sendMsgTask(userData, config.SendMsgConfig.UserID[processingUser], data)
 		if err != nil {
 			log.Println(err)
 		}
 		log.Printf("[%s] 发送私信任务执行完成", userData.Profile.Nickname)
-	case 135000:
+	case 744005:
 		log.Printf("[%s] 执行发送 Mlog 任务中", userData.Profile.Nickname)
 		err := sendMlogTask(userData, data)
 		if err != nil {
 			log.Println(err)
 		}
 		log.Printf("[%s] 发送 Mlog 任务执行完成", userData.Profile.Nickname)
-	case 396002:
-		log.Printf("[%s] 执行发主创说任务中", userData.Profile.Nickname)
+	case 396002: // 待修复
+		log.Printf("[%s] 执行发布主创说任务中", userData.Profile.Nickname)
 		commentConfig := api.CommentConfig{
 			ResType:      api.ResTypeMusic,
 			ResID:        config.CommentConfig.RepliedComment[processingUser].MusicID,
@@ -606,7 +606,7 @@ func checkPathExists(path string) bool {
 }
 
 func autoTaskAvail(val int) bool {
-	availAutoTasks := []int{135000, 399000, 398000, 393001, 395002, 396002}
+	availAutoTasks := []int{740004,744005,732004,755001,749006} // 待修复
 	for i := 0; i < len(availAutoTasks); i++ {
 		if val == availAutoTasks[i] {
 			return true
