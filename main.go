@@ -670,7 +670,7 @@ func parseCircleID(artistDetail types.ArtistDetailData) {
 	}
 }
 
-func autoTaskAvail(val int) bool {
+func autoTaskAvail(val int) bool { //
 	availAutoTasks := []int{135000, 399000, 398000, 393001, 395002, 396002, 755000, 740005}
 	for i := 0; i < len(availAutoTasks); i++ {
 		if val == availAutoTasks[i] {
