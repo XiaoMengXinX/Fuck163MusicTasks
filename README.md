@@ -15,7 +15,9 @@
 
 ## 本项目不支持云函数
 
-## 提问前请确保已阅读READhttps://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/main/README-zh_CN.md#%E5%9C%A8%E6%8F%90%E9%97%AE%E4%B9%8B%E5%89%8D)
+## 提问前请确保已阅读README文档
+
+## [提问的智慧](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/main/README-zh_CN.md#%E5%9C%A8%E6%8F%90%E9%97%AE%E4%B9%8B%E5%89%8D)
 
 ## ✨ 特性
 
