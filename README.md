@@ -13,7 +13,11 @@
   </a>
 </p>
 
-## 不支持云函数
+## 本项目不支持云函数
+
+## 提问前请确保已阅读README文档
+
+## [提问的智慧](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/main/README-zh_CN.md)
 
 ## ✨ 特性
 
