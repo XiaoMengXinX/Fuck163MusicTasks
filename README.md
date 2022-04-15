@@ -89,7 +89,7 @@ $ ./Fuck163MusicTasks
     {
       "Cookies": [ // 至少填入一个用户的 MUSIC_U, 支持多用户及多 Cookie
         {
-          "Name": "MUSIC_U",
+          "Name": "MUSIC_U", // 不要修改此字段
           "Value": "USER_1_MUSIC_U"
         }
       ]
