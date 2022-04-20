@@ -19,6 +19,10 @@
 
 ## [提问的智慧](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/main/README-zh_CN.md#%E5%9C%A8%E6%8F%90%E9%97%AE%E4%B9%8B%E5%89%8D)
 
+## 提issue前请先看看别人的issue里有没有你的问题
+
+## 重复提issue以及乱提issue的直接close
+
 ## ✨ 特性
 
 - web/Android 双平台每日签到
