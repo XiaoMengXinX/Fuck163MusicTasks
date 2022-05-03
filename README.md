@@ -25,6 +25,8 @@
 
 ## 重复提issue以及乱提issue的直接close
 
+## TG交流群 [@Music163_gruop](https://t.me/Music163_group)
+
 ## ✨ 特性
 
 - web/Android 双平台每日签到
