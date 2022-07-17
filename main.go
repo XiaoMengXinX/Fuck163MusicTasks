@@ -239,6 +239,13 @@ func musicianTasks(userData types.LoginStatusData, data utils.RequestData, autoT
 		}
 	}()
 	switch {
+	case strings.Contains(autoTasks[i], "分享"):
+		log.Printf("[%s] 执行分享音乐任务中", userData.Profile.Nickname)
+		err := shareMusicTask(userData, data)
+		if err != nil {
+			log.Println(err)
+		}
+		log.Printf("[%s] 分享音乐任务执行完成", userData.Profile.Nickname)
 	case strings.Contains(autoTasks[i], "签到"):
 		log.Printf("[%s] 执行音乐人签到任务中", userData.Profile.Nickname)
 		result, err := api.MusicianSign(data)
@@ -304,6 +311,44 @@ func musicianTasks(userData types.LoginStatusData, data utils.RequestData, autoT
 		}
 		log.Printf("[%s] 访问云圈任务执行完成", userData.Profile.Nickname)
 	}
+}
+
+func shareMusicTask(userData types.LoginStatusData, data utils.RequestData) error {
+	shareResult, err := api.SongShare(data, config.MusicShareConfig.MySongID)
+	if err != nil {
+		return err
+	}
+	if shareResult.Code == 200 {
+		log.Printf("[%s] 分享音乐成功, 歌曲ID: %d", userData.Profile.Nickname, config.MusicShareConfig.MySongID)
+	} else {
+		log.Printf("[%s] 分享音乐失败, 原因: %s, 歌曲ID: %d", userData.Profile.Nickname, shareResult.Message, config.MusicShareConfig.MySongID)
+	}
+	sendResult, err := api.ShareResource(data, config.MusicShareConfig.MySongID, "song", "")
+	if err != nil {
+		return err
+	}
+	if sendResult.Code == 200 {
+		log.Printf("[%s] 发送歌曲分享动态成功, 动态ID: %d, 歌曲ID: %d", userData.Profile.Nickname, sendResult.Event.Id, config.MusicShareConfig.MySongID)
+		if config.EventSendConfig.LagConfig.LagBetweenSendAndDelete {
+			randomLag := eventLag.Get()
+			if randomLag != 0 {
+				log.Printf("[%s] 延时 %d 秒", userData.Profile.Nickname, randomLag)
+				time.Sleep(time.Duration(randomLag) * time.Second)
+			}
+		}
+		delResult, err := api.DelEvent(data, sendResult.Event.Id)
+		if err != nil {
+			return err
+		}
+		if delResult.Code != 200 {
+			log.Errorf("[%s] 删除动态失败, 动态ID: %d, 代码: %d, 原因: \"%s\"", userData.Profile.Nickname, sendResult.Event.Id, delResult.Code, delResult.Message)
+		} else {
+			log.Printf("[%s] 删除动态成功, 动态ID: %d", userData.Profile.Nickname, sendResult.Event.Id)
+		}
+	} else {
+		log.Errorf("[%s] 发送歌曲分享动态, 代码: %d, 原因: \"%s\"", userData.Profile.Nickname, sendResult.Code, sendResult.Message)
+	}
+	return nil
 }
 
 func getCircleTask(data utils.RequestData) error {
@@ -671,7 +716,7 @@ func parseCircleID(artistDetail types.ArtistHomepageData) {
 }
 
 func autoTaskAvail(val string) bool {
-	if strings.Contains(val, "签到") || strings.Contains(val, "动态") || strings.Contains(val, "评论") || strings.Contains(val, "私信") || strings.Contains(val, "mlog") || strings.Contains(val, "主创说") || strings.Contains(val, "云圈") {
+	if strings.Contains(val, "签到") || strings.Contains(val, "动态") || strings.Contains(val, "评论") || strings.Contains(val, "私信") || strings.Contains(val, "mlog") || strings.Contains(val, "主创说") || strings.Contains(val, "云圈") || strings.Contains(val, "分享") {
 		return true
 	}
 	return false

@@ -10,6 +10,9 @@ type Config struct {
 	Users []struct {
 		Cookies []*http.Cookie `json:"Cookies"`
 	} `json:"Users"`
+	MusicShareConfig struct {
+		MySongID int `json:"MySongID"`
+	} `json:"MusicShareConfig"`
 	EventSendConfig struct {
 		LagConfig LagConfig `json:"LagConfig"`
 	} `json:"EventSendConfig"`

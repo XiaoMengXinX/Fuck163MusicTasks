@@ -18,6 +18,9 @@
       ]
     }
   ],
+  "MusicShareConfig": {
+    "MySongID": 114514
+  },
   "EventSendConfig": {
     "LagConfig": {
       "RandomLag": true,

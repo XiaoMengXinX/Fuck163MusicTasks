@@ -97,6 +97,9 @@ $ ./Fuck163MusicTasks
       ]
     }
   ],
+  "MusicShareConfig": { // 分享音乐配置
+    "MySongID": 114514 // 填入任意一首音乐人名下的歌曲ID
+  },
   "EventSendConfig": { // 发送动态配置
     "LagConfig": { // 延时配置，若要完全关闭延时，请将 RandomLag 设为 false，并将 DefaultLag 设为 0
       "RandomLag": true, // 是否开启随机延时
