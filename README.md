@@ -13,6 +13,20 @@
   </a>
 </p>
 
+## 本项目不支持云函数
+
+## 提问前请确保已阅读README文档
+
+## [提问的智慧](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/main/README-zh_CN.md#%E5%9C%A8%E6%8F%90%E9%97%AE%E4%B9%8B%E5%89%8D)
+
+## 二维码无法扫描的问题见 https://github.com/XiaoMengXinX/Fuck163MusicTasks/issues/17
+
+## 提issue前请先看看别人的issue里有没有你的问题
+
+## 重复提issue以及乱提issue的直接close
+
+## TG交流群 [@Music163_gruop](https://t.me/Music163_group)
+
 ## ✨ 特性
 
 - web/Android 双平台每日签到
@@ -83,7 +97,7 @@ $ ./Fuck163MusicTasks
     {
       "Cookies": [ // 至少填入一个用户的 MUSIC_U, 支持多用户及多 Cookie
         {
-          "Name": "MUSIC_U",
+          "Name": "MUSIC_U", // 不要修改此字段
           "Value": "USER_1_MUSIC_U"
         }
       ]
