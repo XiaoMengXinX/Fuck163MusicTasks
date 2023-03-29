@@ -40,6 +40,8 @@ type Config struct {
 		EnableLag  bool      `json:"EnableLag"`
 		LagConfig  LagConfig `json:"LagConfig"`
 	} `json:"Cron"`
+	PushPlusToken string `json:"PushPlusToken"`
+	ServerSendKey string `json:"ServerSendKey"`
 }
 
 // LagConfig 延迟设置
