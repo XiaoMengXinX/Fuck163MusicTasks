@@ -1,12 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"math/rand"
+	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"runtime"
@@ -38,6 +41,7 @@ var msgLag RandomNum
 var mlogLag RandomNum
 var processingUser int
 var circleID string
+var pushMsg string
 var configFileName = flag.String("c", "config.json", "Config filename") // 从 cli 参数读取配置文件名
 var printVersion = flag.Bool("v", false, "Print version")
 var isDEBUG = flag.Bool("d", false, "DEBUG mode")
@@ -128,6 +132,7 @@ Build ARCH: %s
 
 	startTasks()
 	startCron()
+	startPushMsg()
 }
 
 func startCron() {
@@ -184,6 +189,52 @@ func startTasks() {
 				log.Errorln(err)
 			}
 		}
+	}
+}
+
+// 推送消息
+func startPushMsg() {
+	// PushPlus
+	if config.PushPlusToken != "" {
+		// 消息内容
+		content := fmt.Sprintf("网易云音乐自动任务已完成")
+		content += pushMsg
+		// 推送相关
+		data := url.Values{}
+		data.Set("token", config.PushPlusToken)
+		data.Set("title", "网易云音乐自动任务")
+		data.Set("content", content)
+		res, err := http.PostForm("http://www.pushplus.plus/send", data)
+		if err != nil {
+			log.Errorln(err)
+		}
+		defer res.Body.Close()
+		log.Println("PushPlus推送：", res.Status)
+	}
+	// Server酱
+	if config.ServerSendKey != "" {
+		sendUrl := fmt.Sprintf("https://sc.ftqq.com/%s.send", config.ServerSendKey)
+		// 消息内容
+		type Message struct {
+			Title string `json:"title"`
+			Desp  string `json:"desp"`
+		}
+		title := fmt.Sprintf("网易云音乐自动任务")
+		content := fmt.Sprintf("网易云音乐自动任务已完成")
+		content += pushMsg
+		content = strings.ReplaceAll(content, "\n", "\n\n")
+		message := Message{
+			Title: title,
+			Desp:  content,
+		}
+		messageJson, err := json.Marshal(message)
+		// 推送相关
+		res, err := http.Post(sendUrl, "application/json", bytes.NewReader(messageJson))
+		if err != nil {
+			log.Errorln(err)
+		}
+		defer res.Body.Close()
+		log.Println("Server酱推送：", res.Status)
 	}
 }
 
@@ -373,6 +424,7 @@ func userSignTask(userData types.LoginStatusData, data utils.RequestData) error 
 		log.Printf("[%s] %s (%s)", userData.Profile.Nickname, result.Msg, "Android")
 	} else {
 		log.Printf("[%s] 签到成功 (%s)", userData.Profile.Nickname, "Android")
+		pushMsg += fmt.Sprintf("\n[%s] 签到成功 (%s)", userData.Profile.Nickname, "Android")
 	}
 
 	result, err = api.UserSign(data, 1)
@@ -383,6 +435,7 @@ func userSignTask(userData types.LoginStatusData, data utils.RequestData) error 
 		log.Printf("[%s] %s (%s)", userData.Profile.Nickname, result.Msg, "web/PC")
 	} else {
 		log.Printf("[%s] 签到成功 (%s)", userData.Profile.Nickname, "Android")
+		pushMsg += fmt.Sprintf("\n[%s] 签到成功 (%s)", userData.Profile.Nickname, "Android")
 	}
 	return nil
 }
@@ -613,6 +666,7 @@ func checkCloudBean(userData types.LoginStatusData, data utils.RequestData) ([]s
 		return nil, err
 	}
 	log.Printf("[%s] 账号当前云豆数: %d", userData.Profile.Nickname, cloudBeanData.Data.CloudBean)
+	pushMsg += fmt.Sprintf("\n[%s] 当前云豆数: %d", userData.Profile.Nickname, cloudBeanData.Data.CloudBean)
 	log.Printf("[%s] 获取音乐人任务中...", userData.Profile.Nickname)
 	dailyTasks, err := api.GetMusicianDailyTasks(data)
 	if err != nil {
@@ -634,6 +688,7 @@ func checkCloudBean(userData types.LoginStatusData, data utils.RequestData) ([]s
 			}
 			if result.Code == 200 {
 				log.Printf("[%s] 领取「%s」任务云豆成功, 云豆+%s", userData.Profile.Nickname, task.Description, task.RewardWorth)
+				pushMsg += fmt.Sprintf("\n[%s] 完成「%s」任务云豆+%s", userData.Profile.Nickname, task.Description, task.RewardWorth)
 			} else {
 				log.Errorf("[%s] 领取「%s」任务云豆失败: %s", userData.Profile.Nickname, task.Description, result.Message)
 			}
@@ -654,6 +709,7 @@ func checkCloudBean(userData types.LoginStatusData, data utils.RequestData) ([]s
 					}
 					if result.Code == 200 {
 						log.Printf("[%s] 领取「%s」任务云豆成功, 云豆+%d", userData.Profile.Nickname, task.Description, s.Worth)
+						pushMsg += fmt.Sprintf("\n[%s] 完成「%s」任务云豆+%d", userData.Profile.Nickname, task.Description, s.Worth)
 					} else {
 						log.Errorf("[%s] 领取「%s」任务云豆失败: %s", userData.Profile.Nickname, task.Description, result.Message)
 					}
