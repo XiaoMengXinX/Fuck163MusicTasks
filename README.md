@@ -180,7 +180,9 @@ $ ./Fuck163MusicTasks
       "LagMin": 600,
       "LagMax": 3600
     }
-  }
+  },
+  "PushPlusToken": "", // PushPlus Token, 用于推送运行日志（随便填一个就好）
+  "ServerSendKey": "" // Server酱 SendKey
 }
 ```
 
